@@ -1,6 +1,10 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
-dbt_bin := justfile_directory() / "target/debug/dbt.exe"
+# Build every worktree into the primary clone's target/ (parent of git's common dir).
+# An existing CARGO_TARGET_DIR env var still wins.
+export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(`git rev-parse --path-format=absolute --git-common-dir`) / "target")
+
+dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 
 # list commands
 default:
