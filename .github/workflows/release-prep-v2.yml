@@ -142,13 +142,13 @@ jobs:
       # consumed `.changes/unreleased/*.yaml`, and the regenerated CHANGELOG.md
       # are committed alongside the version bump below.
       - name: Batch changelog
-        uses: miniscruff/changie-action@11bcad388e7973948cbcecb10863baf024d5f607 # miniscruff/changie-action@v3
+        uses: miniscruff/changie-action@3223cb29b92a0972dedc864ace3da01e04780ae4 # miniscruff/changie-action@v3
         with:
           version: v1.24.0
           args: batch ${{ inputs.version }}
 
       - name: Merge changelog into CHANGELOG.md
-        uses: miniscruff/changie-action@11bcad388e7973948cbcecb10863baf024d5f607 # miniscruff/changie-action@v3
+        uses: miniscruff/changie-action@3223cb29b92a0972dedc864ace3da01e04780ae4 # miniscruff/changie-action@v3
         with:
           version: v1.24.0
           args: merge
