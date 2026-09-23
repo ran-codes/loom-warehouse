@@ -248,7 +248,7 @@ jobs:
           cache-bin: "false"
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # mozilla-actions/sccache-action@v0.0.11
         with:
           version: "v0.12.0"
 
@@ -612,7 +612,7 @@ jobs:
           key: test-x86_64-unknown-linux-gnu
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # mozilla-actions/sccache-action@v0.0.11
         with:
           version: "v0.12.0"
 
@@ -721,7 +721,7 @@ jobs:
           cache-targets: "true"
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # mozilla-actions/sccache-action@v0.0.11
         with:
           version: "v0.12.0"
 
@@ -891,7 +891,7 @@ jobs:
           cache-targets: "true"
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # mozilla-actions/sccache-action@v0.0.11
         with:
           version: "v0.12.0"
 
