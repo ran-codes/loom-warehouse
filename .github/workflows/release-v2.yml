@@ -425,7 +425,7 @@ jobs:
       # those two pin it explicitly via actions/setup-python.
       - name: Setup Python 3.10 (macOS/Windows)
         if: ${{ matrix.container == '' }}
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # actions/setup-python@v6
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # actions/setup-python@v6
         with:
           python-version: "3.10"
 
@@ -655,7 +655,7 @@ jobs:
       # the abi3 floor (crates/dbt-sa-python's own requires-python) wouldn't
       # actually exercise what gets published.
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # actions/setup-python@v6
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # actions/setup-python@v6
         with:
           python-version: "3.10"
 
