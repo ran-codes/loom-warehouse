@@ -232,7 +232,7 @@ jobs:
           git config --global core.autocrlf false
           git config --system core.longpaths true
 
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v4
         with:
           ref: ${{ needs.prepare-release.outputs.branch }}
 
@@ -599,7 +599,7 @@ jobs:
       RUST_MIN_STACK: "8388608"
       RUSTC_WRAPPER: sccache
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v4
         with:
           ref: ${{ needs.prepare-release.outputs.branch }}
 
@@ -707,7 +707,7 @@ jobs:
       CARGO_INCREMENTAL: 0
       RUSTC_WRAPPER: sccache
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v4
         with:
           ref: ${{ needs.prepare-release.outputs.branch }}
 
@@ -817,7 +817,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v4
         with:
           ref: ${{ needs.prepare-release.outputs.branch }}
 
@@ -877,7 +877,7 @@ jobs:
       DBT_PYPI_PROD_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       DBT_PYPI_TEST_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v4
         with:
           ref: ${{ needs.prepare-release.outputs.branch }}
 
@@ -1034,7 +1034,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v4
         with:
           ref: ${{ needs.prepare-release.outputs.branch }}
 
@@ -1121,7 +1121,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0  # need the release commit and its parent
