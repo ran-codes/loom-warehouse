@@ -1,2 +1,8 @@
 [alias]
 ci = "run --quiet --package dbt-ci --"
+
+# Windows gives the main thread a 1 MiB stack (Linux/macOS: 8 MiB). Unoptimized
+# debug builds overflow it before `dbt --version` prints. Match the 8 MiB the
+# runtime already gives its worker threads (`FS_DEFAULT_STACK_SIZE`).
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "link-arg=/STACK:8388608"]
