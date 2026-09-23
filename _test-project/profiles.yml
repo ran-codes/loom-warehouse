@@ -1,0 +1,13 @@
+jaffle_shop:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: external/jaffle_shop.duckdb
+      external_root: external/
+      schema: external
+      config_options:
+        temp_directory: 'external/.tmp'
+      settings:
+        threads: 4
+        memory_limit: '4GB'

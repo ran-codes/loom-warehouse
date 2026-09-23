@@ -1,0 +1,9 @@
+dbt_packages/
+dbt_internal_packages/
+logs/
+target/
+.env
+*.parquet
+*.duckdb
+*.duckdb.wal
+external/.tmp/
