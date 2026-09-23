@@ -10,7 +10,7 @@ inputs:
     required: false
     default: ""
   protoc-version:
-    description: "Protocol Buffer Compiler version. Keep in sync with the release workflow so cached protoc installs are interchangeable."
+    description: "Protocol Buffer Compiler version."
     required: false
     default: "29.4"
 

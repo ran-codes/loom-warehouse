@@ -3,30 +3,25 @@
 # clippy, and the workspace test suite.
 
 # **why?**
-# `main` is the Rust branch, but until now the only place the workspace test
-# suite ran was the `test` gate in release-v2.yml, which fires at release time —
-# long after the offending change merged. This runs the same suite per-change so
-# a break is attributed to the pull request that caused it.
+# Runs the workspace test suite per-change so a break is attributed to the pull
+# request that caused it. This is the only workflow kept from the upstream
+# dbt-labs automation; release/publish workflows were removed from this fork.
 
 # **when?**
-# On pull requests targeting `main` and on pushes to `main`, plus manual
-# dispatch. Legacy Python branches such as `1.latest` are deliberately excluded;
-# their CI runs through the reusable workflows in dbt-labs/actions.
+# Only on pull requests targeting `main` that carry the `CI Trigger` label,
+# plus manual dispatch. The runs are expensive, so they are opt-in per PR.
+# Adding the label starts a run; later pushes re-run while it stays on.
 
 name: CI
 
 on:
   pull_request:
-    branches:
-      - main
-  push:
+    types: [opened, synchronize, reopened, labeled]
     branches:
       - main
   workflow_dispatch:
 
-# Superseded pull request runs tell us nothing, so cancel them. Each push to
-# `main` is a distinct commit we want a recorded result for, so those run to
-# completion.
+# Superseded pull request runs tell us nothing, so cancel them.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -52,6 +47,7 @@ jobs:
   # ------------------------------------------------------------------
   fmt:
     name: Format
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'CI Trigger')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -67,6 +63,7 @@ jobs:
 
   clippy:
     name: Clippy
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'CI Trigger')
     runs-on: depot-ubuntu-24.04-32
     timeout-minutes: 45
     env:
@@ -89,21 +86,19 @@ jobs:
         run: sccache --show-stats || true
 
   # ------------------------------------------------------------------
-  # The workspace test suite. Mirrors the release gate in release-v2.yml so a
-  # green pull request means a green release gate. Linux-only: the release
-  # workflow is where per-platform binaries get built, and tests that need live
-  # warehouse credentials are `#[ignore]`d, so this needs no secrets.
+  # The workspace test suite. Linux-only; tests that need live warehouse
+  # credentials are `#[ignore]`d, so this needs no secrets.
   # ------------------------------------------------------------------
   test:
     name: Test workspace
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'CI Trigger')
     runs-on: depot-ubuntu-24.04-32
     timeout-minutes: 60
     env:
       RUSTC_WRAPPER: sccache
       # Load-bearing, not a tuning knob: the parser/jinja recursion overflows
       # the default thread stack, and tests like dbt-sa-cli's
-      # `parse::parse_hello_world` abort with SIGABRT without this. Matches the
-      # release gate. 8 MiB.
+      # `parse::parse_hello_world` abort with SIGABRT without this. 8 MiB.
       RUST_MIN_STACK: "8388608"
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # actions/checkout@v4
@@ -118,7 +113,7 @@ jobs:
       - name: Install cargo-nextest
         run: cargo install cargo-nextest --locked
 
-      # No `--locked`, matching the release gate: see the clippy job above.
+      # No `--locked`: see the clippy job above.
       - name: Run tests
         run: cargo nextest run --workspace
 
