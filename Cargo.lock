@@ -2527,6 +2527,7 @@ dependencies = [
  "indexmap 2.14.2",
  "ini",
  "insta",
+ "loom-polyglot",
  "md5",
  "minijinja",
  "minijinja-contrib",
@@ -6688,6 +6689,14 @@ dependencies = [
  "scoped-tls",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "loom-polyglot"
+version = "2.0.5"
+dependencies = [
+ "dbt-common",
+ "minijinja",
 ]
 
 [[package]]
