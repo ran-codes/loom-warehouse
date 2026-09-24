@@ -84,6 +84,7 @@ Corrections to the issue's framing:
 - [ ] Move 2: Add the `loom-polyglot` crate as a workspace member, with a stub that returns a clear "not implemented" error
 - [ ] Move 3: Send DuckDB Python jobs to the stub and remove DuckDB from the catch-all branch
 - [ ] Move 4: Re-run `just dev` and confirm the error is now the stub's
+- [ ] Move 5: Record the change in our own docs, not dbt's: a user note in `_test-project/README.md` and a changelog entry in `_harness/CHANGELOG.md`
 
 ## Implementation steps
 
@@ -96,6 +97,13 @@ Corrections to the issue's framing:
 7. (Move 3) `cargo check -p dbt-adapter` is clean (no unreachable-pattern warning, no cycle).
 8. (Move 4) `cargo build -p dbt-sa-cli && just dbt build`. `py_orders` fails with the loom-polyglot message, and every SQL model and test still succeeds.
 9. (Move 4) `git diff main -- crates/dbt-adapter Cargo.toml` shows only the dependency lines and the match-arm change.
+10. (Move 5) Append a short "Python models (POC)" section to `_test-project/README.md`: `py_orders.py` exists, what `just dev` shows today (the loom-polyglot stub error), and that real execution lands in later epic #15 steps.
+11. (Move 5) Create `_harness/CHANGELOG.md` if missing (top heading `# Changelog`, newest entry first) and add a dated entry for #14: stub `loom-polyglot` crate, DuckDB Python jobs routed to it, `py_orders` red test.
+
+**Docs rule for this POC:** keep all docs and changelog in our own folders. Do **not** run
+`changie new`, do not add files under `.changes/`, and do not edit `.agents/` guides — those are
+upstream dbt's. The AGENTS.md changie rule does not apply to this fork's POC work. Reading
+`.agents/adapters.md` for context before step 6 is fine; editing it is not.
 
 ## Success spec
 
@@ -107,6 +115,8 @@ Corrections to the issue's framing:
 | DuckDB Python jobs route to the stub | `just dbt build` shows the loom-polyglot message for `py_orders`, not "not supported for duckdb adapter" | agent |
 | No regression on SQL models | `just dbt build` shows all non-`py_orders` nodes succeed | agent |
 | Upstream diff stays minimal | `git diff main --stat -- crates/dbt-adapter Cargo.toml` touches only Cargo manifests + `adapter_impl.rs`, a few lines | human-pre-merge |
+| Docs stay in our own folders | `git diff main --stat` touches `_test-project/README.md` and `_harness/CHANGELOG.md`, and nothing under `.changes/` or `.agents/` | agent |
+| Docs read correctly | Read the README section and changelog entry | human-pre-merge |
 | Maintainer sees the new error themselves | Run `just dev` locally and read the `py_orders` failure | human-pre-merge |
 
 ## Out of scope
