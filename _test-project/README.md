@@ -10,3 +10,15 @@ To get started:
 
 > [!NOTE]
 > If you're brand-new to dbt, we recommend starting with the [dbt Learn](https://learn.getdbt.com/) platform. It's a free, interactive way to learn dbt, and it's a great way to get started if you're new to the tool.
+
+## Python models (POC)
+
+`models/py_orders.py` is a Python model on DuckDB. It builds a table from `stg_orders`.
+
+Today `just dev` routes it to the `loom-polyglot` crate, which is still a stub. So `py_orders` fails with:
+
+```
+loom-polyglot: Python models on DuckDB are not implemented yet
+```
+
+All SQL models still build. Real Python execution comes in later steps of epic #15.

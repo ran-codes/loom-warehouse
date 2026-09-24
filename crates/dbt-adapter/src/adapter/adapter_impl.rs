@@ -1143,6 +1143,10 @@ impl AdapterImpl {
             Replay(Bigquery | Databricks, replay) => {
                 replay.replay_submit_python_job(ctx, conn, state, model, compiled_code)
             }
+            Impl(DuckDB, _) => {
+                loom_polyglot::submit_python_job(model, compiled_code)?;
+                unreachable!("loom-polyglot stub always errors") // replaced when data handoff lands
+            }
             Replay(
                 adapter_type @ (Postgres | Redshift | Salesforce | DuckDB | LakeCompute | Spark
                 | Fabric | ClickHouse | Exasol | Starburst | Athena | Trino
@@ -1150,9 +1154,9 @@ impl AdapterImpl {
                 _,
             )
             | Impl(
-                adapter_type @ (Postgres | Redshift | Salesforce | DuckDB | LakeCompute | Spark
-                | Fabric | ClickHouse | Exasol | Starburst | Athena | Trino
-                | Datafusion | Dremio | Oracle),
+                adapter_type @ (Postgres | Redshift | Salesforce | LakeCompute | Spark | Fabric
+                | ClickHouse | Exasol | Starburst | Athena | Trino | Datafusion | Dremio
+                | Oracle),
                 _,
             ) => Err(AdapterError::new(
                 AdapterErrorKind::Internal,

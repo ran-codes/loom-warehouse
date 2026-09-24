@@ -99,6 +99,9 @@ members = [
   "crates/dbt-platform",
 
   # COPYBARA-END-PRIVATE
+
+  # loom-polyglot
+  "crates/loom-polyglot",
 ]
 exclude = [
   "wizard/wizard-app/src-tauri",
@@ -324,6 +327,9 @@ dbt-lexer-snowflake = { path = "crates/dbt-sql/dbt-lexer-snowflake" }
 dbt-lexer-trino = { path = "crates/dbt-sql/dbt-lexer-trino" }
 dbt-sql-keywords = { path = "crates/dbt-sql-keywords" }
 dbt-sql-utils = { path = "crates/dbt-sql/dbt-sql-utils" }
+
+# loom-polyglot dependencies
+loom-polyglot = { path = "crates/loom-polyglot" }
 
 # jinja dependencies
 minijinja-typecheck-builtins = { path = "crates/minijinja-typecheck-builtins" }
