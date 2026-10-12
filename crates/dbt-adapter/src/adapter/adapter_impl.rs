@@ -1144,8 +1144,8 @@ impl AdapterImpl {
                 replay.replay_submit_python_job(ctx, conn, state, model, compiled_code)
             }
             Impl(DuckDB, _) => {
-                loom_polyglot::submit_python_job(model, compiled_code)?;
-                unreachable!("loom-polyglot stub always errors") // replaced when data handoff lands
+                loom_warehouse::submit_python_job(model, compiled_code)?;
+                unreachable!("loom-warehouse stub always errors") // replaced when data handoff lands
             }
             Replay(
                 adapter_type @ (Postgres | Redshift | Salesforce | DuckDB | LakeCompute | Spark

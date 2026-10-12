@@ -9,6 +9,6 @@ use minijinja::Value;
 pub fn submit_python_job(_model: &Value, _compiled_code: &str) -> AdapterResult<()> {
     Err(AdapterError::new(
         AdapterErrorKind::NotSupported,
-        "loom-polyglot: Python models on DuckDB are not implemented yet",
+        "loom-warehouse: Python models on DuckDB are not implemented yet",
     ))
 }

@@ -1,7 +1,7 @@
-# Loom Polyglot — Python & R models for dbt™
+# Loom Warehouse — Python & R models for dbt™
 
 This software is derived from dbt™ software ([dbt-labs/dbt](https://github.com/dbt-labs/dbt), Apache-2.0).
-Modifications: local Python/R model execution for DuckDB. See [Discussion #1](https://github.com/ran-codes/loom-polyglot/discussions/1).
+Modifications: local Python/R model execution for DuckDB. See [Discussion #1](https://github.com/ran-codes/loom-warehouse/discussions/1).
 
 *dbt is a trademark of dbt Labs, LLC. This project is not affiliated with or endorsed by dbt Labs.*
 

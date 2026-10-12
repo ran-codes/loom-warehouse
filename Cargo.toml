@@ -100,8 +100,8 @@ members = [
 
   # COPYBARA-END-PRIVATE
 
-  # loom-polyglot
-  "crates/loom-polyglot",
+  # loom-warehouse
+  "crates/loom-warehouse",
 ]
 exclude = [
   "wizard/wizard-app/src-tauri",
@@ -328,8 +328,8 @@ dbt-lexer-trino = { path = "crates/dbt-sql/dbt-lexer-trino" }
 dbt-sql-keywords = { path = "crates/dbt-sql-keywords" }
 dbt-sql-utils = { path = "crates/dbt-sql/dbt-sql-utils" }
 
-# loom-polyglot dependencies
-loom-polyglot = { path = "crates/loom-polyglot" }
+# loom-warehouse dependencies
+loom-warehouse = { path = "crates/loom-warehouse" }
 
 # jinja dependencies
 minijinja-typecheck-builtins = { path = "crates/minijinja-typecheck-builtins" }
