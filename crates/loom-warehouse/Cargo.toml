@@ -1,5 +1,5 @@
 [package]
-name = "loom-polyglot"
+name = "loom-warehouse"
 version.workspace = true
 homepage.workspace = true
 repository.workspace = true

@@ -19,4 +19,4 @@ Recipes run in PowerShell (`set windows-shell`).
 - All worktrees build into the primary clone's `target/`. The justfile exports `CARGO_TARGET_DIR` for this; set `CARGO_TARGET_DIR` yourself to override it.
 - A new worktree recompiles the repo's own crates once, because checkout gives every file a new mtime. Third-party crates are reused.
 - Plain `cargo` outside `just` still uses the worktree-local `target/`.
-- Known limits: the last build owns the single `dbt.exe`, and edits made before another worktree's build can be judged fresh and skip a rebuild. See [the known-limits comment](https://github.com/ran-codes/loom-polyglot/issues/12#issuecomment-5800113495).
+- Known limits: the last build owns the single `dbt.exe`, and edits made before another worktree's build can be judged fresh and skip a rebuild. See [the known-limits comment](https://github.com/ran-codes/loom-warehouse/issues/12#issuecomment-5800113495).

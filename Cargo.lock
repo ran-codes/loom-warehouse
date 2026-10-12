@@ -2527,7 +2527,7 @@ dependencies = [
  "indexmap 2.14.2",
  "ini",
  "insta",
- "loom-polyglot",
+ "loom-warehouse",
  "md5",
  "minijinja",
  "minijinja-contrib",
@@ -6692,7 +6692,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "loom-polyglot"
+name = "loom-warehouse"
 version = "2.0.5"
 dependencies = [
  "dbt-common",

@@ -34,7 +34,7 @@ dbt-telemetry = { workspace = true }
 dbt-tracing = { workspace = true }
 dbt-tracked-stmt = { workspace = true }
 dbt-yaml = { workspace = true }
-loom-polyglot = { workspace = true }
+loom-warehouse = { workspace = true }
 
 adbc-core = { workspace = true }
 arrow = { workspace = true }

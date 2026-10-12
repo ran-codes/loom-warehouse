@@ -15,10 +15,10 @@ To get started:
 
 `models/py_orders.py` is a Python model on DuckDB. It builds a table from `stg_orders`.
 
-Today `just dev` routes it to the `loom-polyglot` crate, which is still a stub. So `py_orders` fails with:
+Today `just dev` routes it to the `loom-warehouse` crate, which is still a stub. So `py_orders` fails with:
 
 ```
-loom-polyglot: Python models on DuckDB are not implemented yet
+loom-warehouse: Python models on DuckDB are not implemented yet
 ```
 
 All SQL models still build. Real Python execution comes in later steps of epic #15.
