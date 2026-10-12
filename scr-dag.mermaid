@@ -1,0 +1,28 @@
+%% Scope: `dbt run --select py_orders` (models/py_orders.py returns dbt.ref("stg_orders")).
+%% Grey: existing upstream. Green: done in #16. Blue: #17 data handoff. Orange: uv PR (replaces PATH python).
+flowchart LR
+    run["1. dbt run --select py_orders"] --> parse["2. Parse py_orders.py<br/>finds ref('stg_orders')<br/>→ manifest node"]
+    parse --> select["3. Select<br/>DAG → py_orders only"]
+    select --> compile["4. Compile<br/>materialized=table<br/>source + dbt helper (verify)"]
+    compile --> mat["5. table materialization<br/>create_table_as(python)"]
+    mat --> macro["6. py_write_table<br/>→ loom runner script"]
+    macro --> submit["7. statement('main')<br/>→ submit_python_job"]
+    submit --> arm["8. DuckDB arm<br/>→ loom-warehouse"]
+    arm --> export["9. COPY stg_orders<br/>→ stg_orders.parquet"]
+    arm --> pathpy["10. python on PATH"]
+    env["11. uv: interpreter + packages"] -.->|replaces| pathpy
+    pathpy --> child
+    export --> child["12. Python child<br/>ref('stg_orders') → LazyFrame<br/>model(dbt, None)"]
+    child --> result["13. result.parquet"]
+    result --> ctas["14. CTAS py_orders__dbt_tmp<br/>from read_parquet"]
+    ctas --> rename["15. rename<br/>→ py_orders"]
+    rename --> duck[("16. DuckDB file<br/>table py_orders")]
+
+    classDef existing fill:#e5e7eb,stroke:#6b7280,color:#111
+    classDef done fill:#bbf7d0,stroke:#15803d,color:#111
+    classDef pr1 fill:#bfdbfe,stroke:#1d4ed8,color:#111
+    classDef pr2 fill:#fed7aa,stroke:#c2410c,color:#111
+    class run,parse,select,compile,mat,submit,rename,duck existing
+    class arm done
+    class macro,export,pathpy,child,result,ctas pr1
+    class env pr2
