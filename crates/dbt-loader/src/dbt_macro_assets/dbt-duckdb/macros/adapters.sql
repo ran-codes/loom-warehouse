@@ -125,29 +125,74 @@
     {% if not temporary and write_strategy != 'create_as_select' %}
       {% do exceptions.raise_compiler_error("DuckDB Python models cannot materialize to an Iceberg catalog that requires create-then-insert writes. Use a SQL model.") %}
     {% endif %}
-    {{ py_write_table(temporary=temporary, relation=relation, compiled_code=compiled_code) }}
+    {#-- loom-warehouse: the Python child has no DuckDB connection. Export every ref to Parquet
+         here (this renders before statement('main') spawns the child), and let table.sql load
+         the child's result.parquet after the child exits. --#}
+    {%- set prefix = loom_prefix(model) -%}
+    {%- set ref_paths = loom_export_refs(model, prefix) -%}
+    {{ py_write_table(temporary=temporary, relation=relation, compiled_code=compiled_code, prefix=prefix, ref_paths=ref_paths) }}
   {%- else -%}
       {% do exceptions.raise_compiler_error("duckdb__create_table_as macro didn't get supported language, it got %s" % language) %}
   {%- endif -%}
 {% endmacro %}
 
-{% macro py_write_table(temporary, relation, compiled_code) -%}
+{#-- loom-warehouse: every file of a Python model run is target/loom-warehouse.<model>.<file>,
+     relative to the dbt process CWD. Flat on purpose: DuckDB's COPY cannot create directories,
+     and target/ is the one directory dbt guarantees exists before the first ref is exported. --#}
+{% macro loom_prefix(model) -%}
+  {{ return("target/loom-warehouse." ~ model.name ~ ".") }}
+{%- endmacro %}
+
+{#-- loom-warehouse: COPY each ref of a Python model to <prefix><name>.parquet.
+     Mirrors build_ref_function so the returned keys are the exact strings ref() passes to
+     dbt_load_df_function. --#}
+{% macro loom_export_refs(model, prefix) -%}
+  {%- set ref_paths = {} -%}
+  {%- for _ref in model.refs -%}
+    {%- set _ref_args = [_ref.get('package'), _ref['name']] if _ref.get('package') else [_ref['name'],] -%}
+    {%- set resolved = ref(*_ref_args, v=_ref.get('version')) -%}
+    {%- if resolved.render is defined and resolved.render is callable -%}
+      {%- set resolved = resolved.render() -%}
+    {%- endif -%}
+    {%- set resolved_name = resolve_model_name(resolved) -%}
+    {%- set parquet_file = _ref['name'] ~ ".parquet" -%}
+    {%- do run_query("copy (select * from " ~ resolved ~ ") to '" ~ prefix ~ parquet_file ~ "' (format parquet)") -%}
+    {%- do ref_paths.update({resolved_name: parquet_file}) -%}
+  {%- endfor -%}
+  {{ return(ref_paths) }}
+{%- endmacro %}
+
+{#-- loom-warehouse runner. Rendered body is handed to submit_python_job, which writes it to
+     <prefix>model.py and runs it with a plain interpreter (no DuckDB connection) from the dbt
+     process CWD, so every path below stays relative to that CWD like the COPY above. --#}
+{% macro py_write_table(temporary, relation, compiled_code, prefix, ref_paths) -%}
+# loom-warehouse runner (this comment absorbs any indentation the Jinja call site adds)
 {{ compiled_code }}
 
-def materialize(df, con):
-    try:
-        import pyarrow
-        pyarrow_available = True
-    except ImportError:
-        pyarrow_available = False
-    finally:
-        if pyarrow_available and isinstance(df, pyarrow.Table):
-            # https://github.com/duckdb/duckdb/issues/6584
-            import pyarrow.dataset
-    tmp_name = '__dbt_python_model_df_' + '{{ relation.identifier }}'
-    con.register(tmp_name, df)
-    con.execute('create table {{ relation }} as select * from ' + tmp_name)
-    con.unregister(tmp_name)
+import polars as pl
+import pyarrow as pa
+import pyarrow.parquet as pq
+
+_LOOM_PREFIX = r"{{ prefix }}"
+_LOOM_REFS = {{ ref_paths | tojson }}
+
+
+def _loom_load_df(relation_name):
+    return pl.scan_parquet(_LOOM_PREFIX + _LOOM_REFS[relation_name])
+
+
+def main():
+    dbt = dbtObj(_loom_load_df)
+    df = model(dbt, None)
+    if isinstance(df, pl.LazyFrame):
+        df = df.collect()
+    # Any object exposing __arrow_c_stream__ (polars, pyarrow, pandas>=2.2, ...) works here.
+    table = pa.RecordBatchReader.from_stream(df).read_all()
+    pq.write_table(table, _LOOM_PREFIX + "result.parquet")
+
+
+if __name__ == "__main__":
+    main()
 {% endmacro %}
 
 {% macro duckdb__create_view_as(relation, sql) -%}

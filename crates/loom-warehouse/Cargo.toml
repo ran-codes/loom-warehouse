@@ -16,5 +16,8 @@ workspace = true
 dbt-common = { workspace = true }
 minijinja = { workspace = true }
 
+[dev-dependencies]
+serde_json = { workspace = true }
+
 [lib]
 doctest = false

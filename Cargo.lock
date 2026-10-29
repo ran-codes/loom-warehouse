@@ -6697,6 +6697,7 @@ version = "2.0.5"
 dependencies = [
  "dbt-common",
  "minijinja",
+ "serde_json",
 ]
 
 [[package]]
