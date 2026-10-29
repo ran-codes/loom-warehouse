@@ -108,13 +108,13 @@ Work dir per model: `target/loom-warehouse/<model.name>/`.
 
 ## Agreed Moves
 
-- [ ] Move 1: Add the downstream SQL model and the row-count singular test; confirm `just dbt build` is red at `py_orders` with the stub message
-- [ ] Move 2: Rewrite `py_write_table` and add the two `loom_*` helpers; export refs before the child, CTAS after
-- [ ] Move 3: Replace the stub body with write-file / spawn / check-exit, keep the signature
-- [ ] Move 4: Return an `OK` `AdapterResponse` from the DuckDB arm
-- [ ] Move 5: `just py-env` recipe and `LOOM_PYTHON` default in the `dbt` recipe
-- [ ] Move 6: `just dev` green; `--select py_orders` runs it alone; the second run (overwrite) also passes
-- [ ] Move 7: Update `scr-dag.mermaid` (COPY and CTAS move from the Rust arm to the macros), `_test-project/README.md`, `_harness/CHANGELOG.md`
+- [x] Move 1: Add the downstream SQL model and the row-count singular test; confirm `just dbt build` is red at `py_orders` with the stub message
+- [x] Move 2: Rewrite `py_write_table` and add the two `loom_*` helpers; export refs before the child, CTAS after
+- [x] Move 3: Replace the stub body with write-file / spawn / check-exit, keep the signature
+- [x] Move 4: Return an `OK` `AdapterResponse` from the DuckDB arm
+- [x] Move 5: `just py-env` recipe and `LOOM_PYTHON` default in the `dbt` recipe
+- [x] Move 6: `just dev` green; `--select py_orders` runs it alone; the second run (overwrite) also passes
+- [x] Move 7: Update `scr-dag.mermaid` (COPY and CTAS move from the Rust arm to the macros), `_test-project/README.md`, `_harness/CHANGELOG.md`
 
 ## Implementation steps
 
