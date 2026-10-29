@@ -18,11 +18,19 @@ flowchart LR
     ctas --> rename["15. rename<br/>→ py_orders"]
     rename --> duck[("16. DuckDB file<br/>table py_orders")]
 
+    subgraph legend["Legend"]
+        direction TB
+        L1["Existing upstream (grey)"]
+        L2["Done in #16 (green)"]
+        L3["#17 data handoff (blue)"]
+        L4["uv PR, later (orange)"]
+    end
+
     classDef existing fill:#e5e7eb,stroke:#6b7280,color:#111
     classDef done fill:#bbf7d0,stroke:#15803d,color:#111
     classDef pr1 fill:#bfdbfe,stroke:#1d4ed8,color:#111
     classDef pr2 fill:#fed7aa,stroke:#c2410c,color:#111
-    class run,parse,select,compile,mat,submit,rename,duck existing
-    class arm done
-    class macro,export,pathpy,child,result,ctas pr1
-    class env pr2
+    class run,parse,select,compile,mat,submit,rename,duck,L1 existing
+    class arm,L2 done
+    class macro,export,pathpy,child,result,ctas,L3 pr1
+    class env,L4 pr2
