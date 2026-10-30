@@ -575,7 +575,7 @@ mod tests {
         );
 
         let child = private.join("child");
-        std::fs::File::create(&child).unwrap();
+        File::create(&child).unwrap();
         assert_acl(&child, INHERITED_ACE, true, false);
     }
 
@@ -967,7 +967,7 @@ mod tests {
                 GetAclInformation(
                     dacl,
                     &mut size as *mut ACL_SIZE_INFORMATION as *mut c_void,
-                    std::mem::size_of::<ACL_SIZE_INFORMATION>() as u32,
+                    size_of::<ACL_SIZE_INFORMATION>() as u32,
                     AclSizeInformation,
                 )
             },

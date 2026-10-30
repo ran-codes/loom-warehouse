@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
 use base64::Engine;
@@ -1064,7 +1064,7 @@ fn upsert_session(cache_path: &PathBuf, session: OAuthSession) -> Result<(), Aut
 }
 
 #[cfg(unix)]
-fn write_secure(data: &[u8], path: &PathBuf) -> std::io::Result<()> {
+fn write_secure(data: &[u8], path: &Path) -> std::io::Result<()> {
     use std::os::unix::fs::OpenOptionsExt;
     let mut file = std::fs::OpenOptions::new()
         .write(true)
@@ -1076,13 +1076,13 @@ fn write_secure(data: &[u8], path: &PathBuf) -> std::io::Result<()> {
 }
 
 #[cfg(windows)]
-fn write_secure(data: &[u8], path: &PathBuf) -> std::io::Result<()> {
+fn write_secure(data: &[u8], path: &Path) -> std::io::Result<()> {
     let mut file = dbt_file_security::open_owner_only(path)?;
     std::io::Write::write_all(&mut file, data)
 }
 
 #[cfg(not(any(unix, windows)))]
-fn write_secure(data: &[u8], path: &PathBuf) -> std::io::Result<()> {
+fn write_secure(data: &[u8], path: &Path) -> std::io::Result<()> {
     std::fs::write(path, data)
 }
 

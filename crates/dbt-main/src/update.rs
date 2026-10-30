@@ -827,6 +827,7 @@ mod tests {
             self
         }
 
+        #[cfg(not(target_os = "windows"))]
         fn with_error(mut self, url: impl Into<String>, code: ErrorCode) -> Self {
             self.errors.insert(url.into(), code);
             self

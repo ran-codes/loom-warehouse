@@ -12,6 +12,10 @@ dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 # epic #15 replaces this with an interpreter dbt provisions itself.
 export LOOM_PYTHON := env("LOOM_PYTHON", ".venv/Scripts/python.exe")
 
+# Load-bearing for `just test` / `just gate`, same as CI: the parser/jinja recursion overflows
+# the default thread stack and tests abort without it. 8 MiB.
+export RUST_MIN_STACK := env("RUST_MIN_STACK", "8388608")
+
 # list commands
 default:
     @just --list
@@ -30,6 +34,32 @@ dev:
     just build
     just dbt deps
     just dbt build
+
+# Crates to lint/test when no crate is named: every crate that differs from main (commits on this
+# branch + uncommitted edits), as `-p a -p b`. scripts/changed-crates.ps1 falls back to dbt-sa-cli.
+scope := "$(powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/changed-crates.ps1)"
+
+# fmt + clippy; compiles up to type-check, builds nothing. Default: crates changed vs main. just check dbt-common
+check crate="":
+    cargo fmt --all --check
+    cargo clippy {{ if crate == "" { scope } else { "-p " + crate } }} --all-targets -- -D warnings
+
+# run tests with nextest. Default: crates changed vs main. just test dbt-common
+test crate="":
+    cargo nextest run {{ if crate == "" { scope } else { "-p " + crate } }}
+
+# the local gate before pushing: check + test across the whole workspace, same as CI (Linux).
+# Name a crate to run the same three steps on it alone: just gate dbt-adapter
+#
+# One test binary is skipped: dbt-adapter's `snowflake_context_deadline_exceeded` downloads the
+# Snowflake ADBC driver from public.cdn.getdbt.com and fails with "No such host" on this
+# machine even outside the agent sandbox. Snowflake is outside this fork's DuckDB-only scope,
+# so the gate drops that one binary. Every other test in dbt-adapter still runs. The DuckDB
+# driver tests also download on first run, but that driver is already cached per user.
+gate crate="":
+    cargo fmt --all --check
+    cargo clippy {{ if crate == "" { "--workspace" } else { "-p " + crate } }} --all-targets -- -D warnings
+    cargo nextest run {{ if crate == "" { "--workspace" } else { "-p " + crate } }} -E 'not binary(snowflake_context_deadline_exceeded)'
 
 # run the debug binary on the test project without compiling: just dbt run
 [working-directory: '_test-project/project']

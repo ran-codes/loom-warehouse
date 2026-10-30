@@ -1155,8 +1155,8 @@ impl AdapterImpl {
             )
             | Impl(
                 adapter_type @ (Postgres | Redshift | Salesforce | LakeCompute | Spark | Fabric
-                | ClickHouse | Exasol | Starburst | Athena | Trino | Datafusion | Dremio
-                | Oracle),
+                | ClickHouse | Exasol | Starburst | Athena | Trino | Datafusion
+                | Dremio | Oracle),
                 _,
             ) => Err(AdapterError::new(
                 AdapterErrorKind::Internal,
