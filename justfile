@@ -35,14 +35,18 @@ dev:
     just dbt deps
     just dbt build
 
-# fmt + clippy on one crate (default dbt-sa-cli); compiles up to type-check, builds nothing
-check crate="dbt-sa-cli":
-    cargo fmt --all --check
-    cargo clippy -p {{crate}} --all-targets -- -D warnings
+# Crates to lint/test when no crate is named: every crate that differs from main (commits on this
+# branch + uncommitted edits), as `-p a -p b`. scripts/changed-crates.ps1 falls back to dbt-sa-cli.
+scope := "$(powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/changed-crates.ps1)"
 
-# run one crate's tests with nextest (default dbt-sa-cli): just test dbt-common
-test crate="dbt-sa-cli":
-    cargo nextest run -p {{crate}}
+# fmt + clippy; compiles up to type-check, builds nothing. Default: crates changed vs main. just check dbt-common
+check crate="":
+    cargo fmt --all --check
+    cargo clippy {{ if crate == "" { scope } else { "-p " + crate } }} --all-targets -- -D warnings
+
+# run tests with nextest. Default: crates changed vs main. just test dbt-common
+test crate="":
+    cargo nextest run {{ if crate == "" { scope } else { "-p " + crate } }}
 
 # the local gate before pushing: check + test across the whole workspace, same as CI (Linux).
 # Name a crate to run the same three steps on it alone: just gate dbt-adapter
