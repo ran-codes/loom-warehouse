@@ -1,0 +1,2 @@
+timestamp,branch,sha,host,seconds,crates_rebuilt,cache_hits,cache_misses
+2026-10-30T16:15:26Z,ran-codes/add-a-timed-just-build-recipe-and-point-agents-a,52d0d73f9,RAN-OMEN-GPU,350,0,0,681
