@@ -13,7 +13,7 @@ To get started:
 
 ## Python models (POC)
 
-`models/py_orders.py` is a Python model on DuckDB. It builds a table from `stg_orders`;
+`models/marts/py_orders.py` is a Python model on DuckDB. It builds a table from `stg_orders`;
 `models/marts/py_orders_count.sql` reads that table and
 `tests/assert_py_orders_matches_stg_orders.sql` checks the row counts match.
 

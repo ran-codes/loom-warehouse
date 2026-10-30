@@ -1,4 +1,4 @@
-%% Scope: `dbt run --select py_orders` (models/py_orders.py returns dbt.ref("stg_orders")).
+%% Scope: `dbt run --select py_orders` (models/marts/py_orders.py returns dbt.ref("stg_orders")).
 %% Grey: existing upstream. Green: done in #16. Blue: #17 data handoff. Orange: uv PR (replaces PATH python).
 %% Every file of a run is target/loom-warehouse.<model>.<file> (flat: DuckDB COPY cannot create dirs).
 flowchart LR
