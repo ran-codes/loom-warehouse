@@ -29,7 +29,7 @@ dbt *args:
 # (re)create the venv Python models run in: _test-project/project/.venv with polars + pyarrow
 [working-directory: '_test-project/project']
 py-env:
-    uv venv --python 3.12 .venv
+    uv venv --clear --python 3.12 .venv
     uv pip install --python .venv polars pyarrow
 
 # delete the test project outputs
