@@ -143,9 +143,11 @@
   {{ return("target/loom-warehouse." ~ model.name ~ ".") }}
 {%- endmacro %}
 
-{#-- loom-warehouse: COPY each ref of a Python model to <prefix><name>.parquet.
-     Mirrors build_ref_function so the returned keys are the exact strings ref() passes to
-     dbt_load_df_function. --#}
+{#-- loom-warehouse: COPY each ref and source of a Python model to <prefix>ref<n>.parquet /
+     <prefix>source<n>.parquet. Files are numbered, not named, so two refs sharing a name
+     (different version or package) cannot overwrite each other. Mirrors build_ref_function and
+     build_source_function so the returned keys are the exact strings ref() and source() pass
+     to dbt_load_df_function. --#}
 {% macro loom_export_refs(model, prefix) -%}
   {%- set ref_paths = {} -%}
   {%- for _ref in model.refs -%}
@@ -154,12 +156,18 @@
     {%- if resolved.render is defined and resolved.render is callable -%}
       {%- set resolved = resolved.render() -%}
     {%- endif -%}
-    {%- set resolved_name = resolve_model_name(resolved) -%}
-    {%- set parquet_file = _ref['name'] ~ ".parquet" -%}
-    {%- do run_query("copy (select * from " ~ resolved ~ ") to '" ~ prefix ~ parquet_file ~ "' (format parquet)") -%}
-    {%- do ref_paths.update({resolved_name: parquet_file}) -%}
+    {%- do ref_paths.update(loom_export_relation(resolved, prefix, "ref" ~ loop.index ~ ".parquet")) -%}
+  {%- endfor -%}
+  {%- for _source in model.sources -%}
+    {%- set resolved = source(*_source) -%}
+    {%- do ref_paths.update(loom_export_relation(resolved, prefix, "source" ~ loop.index ~ ".parquet")) -%}
   {%- endfor -%}
   {{ return(ref_paths) }}
+{%- endmacro %}
+
+{% macro loom_export_relation(resolved, prefix, parquet_file) -%}
+  {%- do run_query("copy (select * from " ~ resolved ~ ") to '" ~ prefix ~ parquet_file ~ "' (format parquet)") -%}
+  {{ return({resolve_model_name(resolved): parquet_file}) }}
 {%- endmacro %}
 
 {#-- loom-warehouse runner. Rendered body is handed to submit_python_job, which writes it to

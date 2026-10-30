@@ -16,6 +16,8 @@ To get started:
 `models/marts/py_orders.py` is a Python model on DuckDB. It builds a table from `stg_orders`;
 `models/marts/py_orders_count.sql` reads that table and
 `tests/assert_py_orders_matches_stg_orders.sql` checks the row counts match.
+`models/marts/py_raw_orders.py` reads the `raw_orders` source instead of a ref, checked by
+`tests/assert_py_raw_orders_matches_source.sql`.
 
 ### Setup
 
@@ -30,8 +32,8 @@ back to `python` on PATH.
 
 ### What runs
 
-1. The dbt-duckdb macros export every `ref()` of the model to Parquet with `COPY`, before the
-   Python child starts.
+1. The dbt-duckdb macros export every `ref()` and `source()` of the model to Parquet with
+   `COPY`, before the Python child starts.
 2. The `loom-warehouse` crate writes the rendered runner script to disk and runs it with
    `LOOM_PYTHON`. The script loads refs with `polars.scan_parquet`, calls `model(dbt, None)`,
    and writes the result to Parquet through Arrow.
@@ -39,8 +41,8 @@ back to `python` on PATH.
    renames it into place.
 
 Every file of a run is `target/loom-warehouse.<model>.<file>` — for `py_orders`:
-`stg_orders.parquet`, `model.py`, `result.parquet`. The layout is flat because DuckDB's `COPY`
-cannot create directories and `target/` is the one folder dbt guarantees. `just clean` removes it.
+`ref1.parquet` (inputs are numbered, so same-named refs cannot collide), `model.py`,
+`result.parquet`. The layout is flat because DuckDB's `COPY` cannot create directories and `target/` is the one folder dbt guarantees. `just clean` removes it.
 
 A Python error shows up in the dbt error for the model, with the last lines of the traceback.
 
