@@ -1,0 +1,45 @@
+name: Docs site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs-site/**'
+      - '.github/workflows/docs-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Only the docs site is needed; skip the Rust workspace entirely.
+      - name: Checkout docs-site only
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: docs-site
+          filter: blob:none
+      - name: Install, build, and upload
+        uses: withastro/action@v6
+        with:
+          path: ./docs-site
+          node-version: 24
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
