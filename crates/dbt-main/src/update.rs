@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use dbt_common::ErrorCode;
 use dbt_common::err;
+#[cfg(not(target_os = "windows"))]
 use dbt_common::fs_err;
 use dbt_common::tracing::dbt_emit::{emit_warn_log_message, println};
 use dbt_common::tracing::event_info::store_event_attributes;
@@ -28,7 +29,9 @@ use async_compression::tokio::bufread::GzipDecoder;
 use futures::StreamExt;
 
 use dbt_common::FsResult;
-use dbt_dist::version::{VersionsHttpClient, cdn_base_url, resolve_target_version};
+#[cfg(any(test, not(target_os = "windows")))]
+use dbt_dist::version::resolve_target_version;
+use dbt_dist::version::{VersionsHttpClient, cdn_base_url};
 use std::future::Future;
 use std::time::Duration;
 

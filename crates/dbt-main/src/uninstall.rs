@@ -51,6 +51,7 @@ fn ensure_is_not_managed_installation(dist_info: &DistInfo) -> FsResult<()> {
 /// name regardless of what the main binary is named (e.g. an alias like
 /// `dbtf`), so its location is derived from the directory rather than the
 /// main binary's own name.
+#[cfg(any(test, not(target_os = "windows")))]
 fn parent_dir_of(exe_path: &str) -> Option<String> {
     std::path::Path::new(exe_path)
         .parent()
