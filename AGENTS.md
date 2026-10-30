@@ -53,8 +53,21 @@ Run from the repo root. `just` with no args lists them.
 | `just preview` | Live-preview the Loom Warehouse docs site (`docs-site/`, Astro Starlight) at `localhost:4321/loom-warehouse/`. Installs deps via pnpm first. **"start preview", "start docs", "docs dev", "preview the docs" all mean this.** |
 | `just build` | Compile the debug `dbt` binary (timed; logs one JSON record to `docs/build-times/`) |
 | `just dev` | `just build`, then `dbt deps` + `dbt build` on `_test-project/` |
+| `just check [crate]` | `cargo fmt --check` + `cargo clippy -D warnings` on one crate (default `dbt-sa-cli`). Compiles to type-check only; ~40s warm, ~6s unchanged |
+| `just test [crate]` | `cargo nextest run` on one crate (default `dbt-sa-cli`). ~3s when nothing changed |
+| `just gate` | The local gate before pushing: fmt + clippy + nextest across the whole workspace — what CI runs. Minutes |
 | `just dbt <args>` | Run the already-built debug binary on the test project, no compile (e.g. `just dbt run`) |
 | `just py-env` | (Re)create the venv Python models run in (`_test-project/project/.venv`, polars + pyarrow) |
 | `just clean` | Delete test project outputs (target, logs, dbt_packages, external data files) |
 
 `just preview` is a long-running dev server — start it in the background.
+
+## Test Suite
+
+Dev loop: `just check [crate]` + `just test [crate]`. Gate before pushing: `just gate` (whole workspace, mirrors CI). CI runs the same three cargo commands on Linux, opt-in per PR via the `CI Trigger` label.
+
+| Command | Scope |
+|---|---|
+| `just check` | fmt + clippy, one crate |
+| `just test` | nextest, one crate |
+| `just gate` | all three, all crates |

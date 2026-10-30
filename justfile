@@ -12,6 +12,10 @@ dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 # epic #15 replaces this with an interpreter dbt provisions itself.
 export LOOM_PYTHON := env("LOOM_PYTHON", ".venv/Scripts/python.exe")
 
+# Load-bearing for `just test` / `just gate`, same as CI: the parser/jinja recursion overflows
+# the default thread stack and tests abort without it. 8 MiB.
+export RUST_MIN_STACK := env("RUST_MIN_STACK", "8388608")
+
 # list commands
 default:
     @just --list
@@ -30,6 +34,21 @@ dev:
     just build
     just dbt deps
     just dbt build
+
+# fmt + clippy on one crate (default dbt-sa-cli); compiles up to type-check, builds nothing
+check crate="dbt-sa-cli":
+    cargo fmt --all --check
+    cargo clippy -p {{crate}} --all-targets -- -D warnings
+
+# run one crate's tests with nextest (default dbt-sa-cli): just test dbt-common
+test crate="dbt-sa-cli":
+    cargo nextest run -p {{crate}}
+
+# the local gate before pushing: check + test across the whole workspace, same as CI (Linux)
+gate:
+    cargo fmt --all --check
+    cargo clippy --workspace --all-targets -- -D warnings
+    cargo nextest run --workspace
 
 # run the debug binary on the test project without compiling: just dbt run
 [working-directory: '_test-project/project']
