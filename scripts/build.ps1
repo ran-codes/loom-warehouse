@@ -11,7 +11,15 @@ sccache --zero-stats | Out-Null
 
 $sw = [Diagnostics.Stopwatch]::StartNew()
 # cmd merges stderr at the OS level, so cargo's progress streams as plain text.
-cmd /c "cargo build -p dbt-sa-cli --timings --color always 2>&1" | Tee-Object -Variable lines
+# The filter hides the two upstream Cargo.toml warnings described in the justfile (#28).
+$hide = $false
+cmd /c "cargo build -p dbt-sa-cli --timings --color always 2>&1" | ForEach-Object {
+    $line = "$_"; $plain = $line -replace '\x1b\[[0-9;]*m', ''
+    if ($plain -match '^warning: patch `arrow-flight ') { $hide = $true; return }
+    if ($plain -match '^warning: profile package spec `sdf-frontend`') { return }
+    if ($hide -and $plain -match '^(help: |      \S)') { return }
+    $hide = $false; $line
+} | Tee-Object -Variable lines
 $code = $LASTEXITCODE
 $sw.Stop()
 if ($code -ne 0) { exit $code }

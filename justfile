@@ -17,6 +17,11 @@ default:
     @just --list
 
 # compile the debug binary; logs the build time to docs/build-times.csv
+#
+# DX: the build hides two Cargo warnings that come from upstream's root Cargo.toml,
+# which we leave unedited to keep upstream merges clean: an unused `arrow-flight` patch
+# (plus its help lines) and a dev profile for upstream's private `sdf-frontend` crate.
+# Every other warning still prints, and a failed build still stops the recipe. See #28.
 build:
     powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
 
