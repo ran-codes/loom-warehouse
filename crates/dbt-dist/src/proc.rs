@@ -160,6 +160,7 @@ fn terminate_gracefully(_child: &Child) {
 
 #[cfg(test)]
 mod tests {
+    #[cfg(unix)]
     use super::*;
 
     #[test]
