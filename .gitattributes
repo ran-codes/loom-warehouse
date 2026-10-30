@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto eol=lf
+
+# Every branch appends build rows; keep both sides on merge.
+docs/build-times.csv merge=union

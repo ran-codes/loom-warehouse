@@ -15,9 +15,9 @@ export LOOM_PYTHON := env("LOOM_PYTHON", ".venv/Scripts/python.exe")
 default:
     @just --list
 
-# compile the debug binary; writes a timestamped timings report to target/cargo-timings/
+# compile the debug binary; logs the build time to docs/build-times.csv
 build:
-    cargo build -p dbt-sa-cli --timings
+    powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
 
 # compile the debug binary, then run `dbt build` on the test project
 dev:

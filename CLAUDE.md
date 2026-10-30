@@ -1,2 +1,2 @@
 AGENTS.md
-Build with `just build` (timed; reports in `target/cargo-timings/`), never raw `cargo build`.
+Build with `just build` (timed; logged to `docs/build-times.csv`), never raw `cargo build`.
