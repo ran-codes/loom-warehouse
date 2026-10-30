@@ -44,11 +44,14 @@ check crate="dbt-sa-cli":
 test crate="dbt-sa-cli":
     cargo nextest run -p {{crate}}
 
-# the local gate before pushing: check + test across the whole workspace, same as CI (Linux)
-gate:
+# the local gate before pushing: check + test across the whole workspace, same as CI (Linux).
+# Name a crate to run the same three steps on it alone: just gate dbt-adapter
+# Needs internet on first run: the ADBC driver tests download drivers from public.cdn.getdbt.com
+# and cache them locally.
+gate crate="":
     cargo fmt --all --check
-    cargo clippy --workspace --all-targets -- -D warnings
-    cargo nextest run --workspace
+    cargo clippy {{ if crate == "" { "--workspace" } else { "-p " + crate } }} --all-targets -- -D warnings
+    cargo nextest run {{ if crate == "" { "--workspace" } else { "-p " + crate } }}
 
 # run the debug binary on the test project without compiling: just dbt run
 [working-directory: '_test-project/project']
