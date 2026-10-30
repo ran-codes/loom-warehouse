@@ -26,7 +26,7 @@ if ($code -ne 0) { exit $code }
 
 # crates_rebuilt counts every `Compiling` line, sccache hits included; the cache
 # columns tell a cold build from a cached one.
-$rebuilt = @($lines | Where-Object { $_ -match 'Compiling ' }).Count
+$rebuilt = @($lines | Where-Object { ($_ -replace '\x1b\[[0-9;]*m', '') -match '^\s*Compiling ' }).Count
 $stats = (sccache --show-stats --stats-format json | ConvertFrom-Json).stats
 $hits = ($stats.cache_hits.counts.PSObject.Properties.Value | Measure-Object -Sum).Sum
 $misses = ($stats.cache_misses.counts.PSObject.Properties.Value | Measure-Object -Sum).Sum
