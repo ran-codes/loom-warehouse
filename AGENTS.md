@@ -6,6 +6,11 @@ Paths in this file and in `.agents/` are relative to the directory containing th
 
 ## Hard Rules
 
+### Scope
+
+- This repo is a frozen fork of dbt OSS, which supports many adapters. Loom Warehouse supports only DuckDB.
+- Adapter changes go only to the DuckDB adapter (e.g. the `DuckDB` arms in `dbt-adapter`, `dbt_macro_assets/dbt-duckdb/`). Leave every other adapter as forked.
+
 ### Code Style
 
 - Follow existing code style and patterns in the given crate/module.

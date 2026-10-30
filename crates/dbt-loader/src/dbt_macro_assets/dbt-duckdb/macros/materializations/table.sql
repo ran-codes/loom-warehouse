@@ -40,6 +40,12 @@
     {{- create_table_as(False, intermediate_relation, compiled_code, language) }}
   {%- endcall %}
 
+  {% if language == 'python' %}
+    {#-- loom-warehouse: the Python child wrote its result to Parquet; load it into the
+         intermediate relation here, after the child exited, so the rename below promotes it. --#}
+    {% do run_query("create table " ~ intermediate_relation ~ " as select * from read_parquet('" ~ loom_prefix(model) ~ "result.parquet')") %}
+  {% endif %}
+
   {% if not use_direct_create and existing_relation is not none %}
       {#-- Drop indexes before renaming to avoid dependency errors --#}
       {% do drop_indexes_on_relation(existing_relation) %}

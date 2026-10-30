@@ -1,28 +1,36 @@
-%% Scope: `dbt run --select py_orders` (models/py_orders.py returns dbt.ref("stg_orders")).
+%% Scope: `dbt run --select py_orders` (models/marts/py_orders.py returns dbt.ref("stg_orders")).
 %% Grey: existing upstream. Green: done in #16. Blue: #17 data handoff. Orange: uv PR (replaces PATH python).
+%% Every file of a run is target/loom-warehouse.<model>.<file> (flat: DuckDB COPY cannot create dirs).
 flowchart LR
     run["1. dbt run --select py_orders"] --> parse["2. Parse py_orders.py<br/>finds ref('stg_orders')<br/>→ manifest node"]
     parse --> select["3. Select<br/>DAG → py_orders only"]
     select --> compile["4. Compile<br/>materialized=table<br/>source + dbt helper (verify)"]
     compile --> mat["5. table materialization<br/>create_table_as(python)"]
-    mat --> macro["6. py_write_table<br/>→ loom runner script"]
-    macro --> submit["7. statement('main')<br/>→ submit_python_job"]
-    submit --> arm["8. DuckDB arm<br/>→ loom-warehouse"]
-    arm --> export["9. COPY stg_orders<br/>→ stg_orders.parquet"]
-    arm --> pathpy["10. python on PATH"]
-    env["11. uv: interpreter + packages"] -.->|replaces| pathpy
-    pathpy --> child
-    export --> child["12. Python child<br/>ref('stg_orders') → LazyFrame<br/>model(dbt, None)"]
-    child --> result["13. result.parquet"]
-    result --> ctas["14. CTAS py_orders__dbt_tmp<br/>from read_parquet"]
+    mat --> export["6. loom_export_refs (macro)<br/>COPY stg_orders<br/>→ py_orders.stg_orders.parquet"]
+    export --> macro["7. py_write_table<br/>→ loom runner script"]
+    macro --> submit["8. statement('main')<br/>→ submit_python_job"]
+    submit --> arm["9. DuckDB arm<br/>→ loom-warehouse"]
+    arm --> spawn["10. write py_orders.model.py<br/>spawn LOOM_PYTHON | python"]
+    env["11. uv: interpreter + packages"] -.->|replaces| spawn
+    spawn --> child["12. Python child<br/>ref('stg_orders') → LazyFrame<br/>model(dbt, None)"]
+    child --> result["13. py_orders.result.parquet"]
+    result --> ctas["14. table.sql (macro)<br/>CTAS py_orders__dbt_tmp<br/>from read_parquet"]
     ctas --> rename["15. rename<br/>→ py_orders"]
     rename --> duck[("16. DuckDB file<br/>table py_orders")]
+
+    subgraph legend["Legend"]
+        direction TB
+        L1["Existing upstream (grey)"]
+        L2["Done in #16 (green)"]
+        L3["#17 data handoff (blue)"]
+        L4["uv PR, later (orange)"]
+    end
 
     classDef existing fill:#e5e7eb,stroke:#6b7280,color:#111
     classDef done fill:#bbf7d0,stroke:#15803d,color:#111
     classDef pr1 fill:#bfdbfe,stroke:#1d4ed8,color:#111
     classDef pr2 fill:#fed7aa,stroke:#c2410c,color:#111
-    class run,parse,select,compile,mat,submit,rename,duck existing
-    class arm done
-    class macro,export,pathpy,child,result,ctas pr1
-    class env pr2
+    class run,parse,select,compile,mat,submit,rename,duck,L1 existing
+    class arm,L2 done
+    class export,macro,spawn,child,result,ctas,L3 pr1
+    class env,L4 pr2

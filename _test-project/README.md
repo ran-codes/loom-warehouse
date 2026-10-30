@@ -13,12 +13,44 @@ To get started:
 
 ## Python models (POC)
 
-`models/py_orders.py` is a Python model on DuckDB. It builds a table from `stg_orders`.
+`models/marts/py_orders.py` is a Python model on DuckDB. It builds a table from `stg_orders`;
+`models/marts/py_orders_count.sql` reads that table and
+`tests/assert_py_orders_matches_stg_orders.sql` checks the row counts match.
+`models/marts/py_raw_orders.py` reads the `raw_orders` source instead of a ref, checked by
+`tests/assert_py_raw_orders_matches_source.sql`.
 
-Today `just dev` routes it to the `loom-warehouse` crate, which is still a stub. So `py_orders` fails with:
+### Setup
 
 ```
-loom-warehouse: Python models on DuckDB are not implemented yet
+just py-env   # once: _test-project/.venv with polars + pyarrow (needs uv)
+just dev      # build the binary, then dbt build
 ```
 
-All SQL models still build. Real Python execution comes in later steps of epic #15.
+`just dbt` runs Python models with `LOOM_PYTHON` (default `.venv/Scripts/python.exe`, relative to
+this folder). Set it to any interpreter that has `polars` and `pyarrow`; unset, the crate falls
+back to `python` on PATH.
+
+### What runs
+
+1. The dbt-duckdb macros export every `ref()` and `source()` of the model to Parquet with
+   `COPY`, before the Python child starts.
+2. The `loom-warehouse` crate writes the rendered runner script to disk and runs it with
+   `LOOM_PYTHON`. The script loads refs with `polars.scan_parquet`, calls `model(dbt, None)`,
+   and writes the result to Parquet through Arrow.
+3. The `table` materialization creates the table from that Parquet with `read_parquet`, then
+   renames it into place.
+
+Every file of a run is `target/loom-warehouse.<model>.<file>` — for `py_orders`:
+`ref1.parquet` (inputs are numbered, so same-named refs cannot collide), `model.py`,
+`result.parquet`. The layout is flat because DuckDB's `COPY` cannot create directories and `target/` is the one folder dbt guarantees. `just clean` removes it.
+
+A Python error shows up in the dbt error for the model, with the last lines of the traceback.
+
+Still to come in epic #15: `uv` provisioning the interpreter inside dbt, incremental models, R.
+
+### Dev gotcha: stale `target/` after a worktree is deleted
+
+In debug builds `rust-embed` reads its assets (typecheck builtins, macros) from the source folder
+baked in at compile time. If a cached crate was compiled from a worktree that no longer exists,
+`dbt` panics in `typemeta.rs` (`called Option::unwrap() on a None value`) on any model. Fix:
+`cargo clean -p minijinja-typecheck-builtins` then rebuild.

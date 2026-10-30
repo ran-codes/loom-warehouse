@@ -1145,7 +1145,7 @@ impl AdapterImpl {
             }
             Impl(DuckDB, _) => {
                 loom_warehouse::submit_python_job(model, compiled_code)?;
-                unreachable!("loom-warehouse stub always errors") // replaced when data handoff lands
+                Ok(AdapterResponse::new().with_message("OK"))
             }
             Replay(
                 adapter_type @ (Postgres | Redshift | Salesforce | DuckDB | LakeCompute | Spark

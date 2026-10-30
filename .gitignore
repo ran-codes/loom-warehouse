@@ -36,3 +36,6 @@ scratch/
 dump.rdb
 
 AGENTS.local.md
+
+# local Python env for the harness (issue #17)
+_test-project/.venv/

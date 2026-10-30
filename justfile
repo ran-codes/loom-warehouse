@@ -6,6 +6,11 @@ export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(`git rev-par
 
 dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 
+# Interpreter for Python models. Relative to _test-project (the `dbt` recipe's working dir),
+# so it points at the venv `just py-env` creates. Windows layout for now; the uv step of
+# epic #15 replaces this with an interpreter dbt provisions itself.
+export LOOM_PYTHON := env("LOOM_PYTHON", ".venv/Scripts/python.exe")
+
 # list commands
 default:
     @just --list
@@ -20,6 +25,12 @@ dev:
 [working-directory: '_test-project']
 dbt *args:
     {{dbt_bin}} {{args}} --profiles-dir .
+
+# (re)create the venv Python models run in: _test-project/.venv with polars + pyarrow
+[working-directory: '_test-project']
+py-env:
+    uv venv --python 3.12 .venv
+    uv pip install --python .venv polars pyarrow
 
 # delete the harness outputs
 [working-directory: '_test-project']
