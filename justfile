@@ -1,8 +1,9 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
-# Build every worktree into the primary clone's target/ (parent of git's common dir).
-# An existing CARGO_TARGET_DIR env var still wins.
-export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(`git rev-parse --path-format=absolute --git-common-dir`) / "target")
+# Each worktree builds into its own target/, so worktrees never wait on one cargo lock.
+# sccache shares compiled crates across them. An existing CARGO_TARGET_DIR env var still wins.
+export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
+export RUSTC_WRAPPER := "sccache"
 
 dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 
@@ -15,20 +16,18 @@ export LOOM_PYTHON := env("LOOM_PYTHON", ".venv/Scripts/python.exe")
 default:
     @just --list
 
-# compile the debug binary, then run `dbt build` on the test project
+# compile the debug binary; logs one JSON record per build to docs/build-times/
 #
 # DX: the build hides two Cargo warnings that come from upstream's root Cargo.toml,
 # which we leave unedited to keep upstream merges clean: an unused `arrow-flight` patch
 # (plus its help lines) and a dev profile for upstream's private `sdf-frontend` crate.
 # Every other warning still prints, and a failed build still stops the recipe. See #28.
+build:
+    powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
+
+# compile the debug binary, then run `dbt build` on the test project
 dev:
-    @$hide = $false; cargo build -p dbt-sa-cli --color always 2>&1 | ForEach-Object { \
-        $line = "$_"; $plain = $line -replace '\x1b\[[0-9;]*m', ''; \
-        if ($plain -match '^warning: patch `arrow-flight ') { $hide = $true; return }; \
-        if ($plain -match '^warning: profile package spec `sdf-frontend`') { return }; \
-        if ($hide -and $plain -match '^(help: |      \S)') { return }; \
-        $hide = $false; $line \
-    }; exit $LASTEXITCODE
+    just build
     just dbt deps
     just dbt build
 
