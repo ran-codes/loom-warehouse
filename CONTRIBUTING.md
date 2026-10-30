@@ -1,5 +1,23 @@
 # Contributing to dbt
 
+## loom-warehouse local setup
+
+This repo started from `dbt-labs/dbt` but is not a GitHub fork. These are per-clone decisions; git does not carry them, so apply them on every new clone.
+
+- **Remotes: `origin` only.** `origin` is `ran-codes/loom-warehouse`. Do not add an `upstream` remote pointing at `dbt-labs/dbt` — tools that prefer `upstream` resolve issue and PR links to the dbt repo. Check with `git remote -v`.
+- **`gh` default repo: `ran-codes/loom-warehouse`.** Check with `gh repo set-default --view`; set with `gh repo set-default ran-codes/loom-warehouse`.
+- **Line endings: LF.** `.gitattributes` pins `* text=auto eol=lf`, but a Windows clone made before that rule (or with `core.autocrlf=true`) keeps CRLF on disk. On a clean tree, refresh once:
+
+  ```sh
+  git rm -r --cached -q :/ && git reset --hard
+  ```
+
+  This discards uncommitted edits. Each worktree needs its own run.
+
+The rest of this file is the inherited dbt guide.
+
+---
+
 There are many ways to contribute to the ongoing development of dbt, including code, discussions, and issues. We encourage you to first read our higher-level document: "[Expectations for Open Source Contributors](https://docs.getdbt.com/community/resources/oss-expectations)".
 
 ### Notes
