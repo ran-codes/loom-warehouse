@@ -16,7 +16,7 @@ export LOOM_PYTHON := env("LOOM_PYTHON", ".venv/Scripts/python.exe")
 default:
     @just --list
 
-# compile the debug binary; logs the build time to docs/build-times.csv
+# compile the debug binary; logs one JSON record per build to docs/build-times/
 #
 # DX: the build hides two Cargo warnings that come from upstream's root Cargo.toml,
 # which we leave unedited to keep upstream merges clean: an unused `arrow-flight` patch
