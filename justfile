@@ -42,6 +42,12 @@ py-env:
     uv venv --clear --python 3.12 .venv
     uv pip install --python .venv polars pyarrow
 
+# live-preview the docs site at localhost:4321/loom-warehouse/ (installs deps first; fast from pnpm's global store)
+[working-directory: 'docs-site']
+preview:
+    pnpm install
+    pnpm dev
+
 # delete the test project outputs
 [working-directory: '_test-project/project']
 clean:
