@@ -34,6 +34,7 @@ use windows_sys::Win32::System::Threading::{GetCurrentProcess, OpenProcessToken}
 
 const TRUE: i32 = 1;
 const FALSE: i32 = 0;
+#[cfg(test)]
 const ACCESS_ALLOWED_ACE_TYPE: u8 = 0;
 const FILE_ACCESS: u32 = FILE_GENERIC_READ | FILE_GENERIC_WRITE | READ_CONTROL | WRITE_DAC;
 const FILE_SHARE: u32 = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
