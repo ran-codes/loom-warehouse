@@ -51,11 +51,16 @@ if [ -n "$repo_url" ] && [ -n "$branch" ] && command -v gh >/dev/null 2>&1; then
   [ -n "$pr_url" ] && link_url="$pr_url"
 fi
 
+# Branch, suffixed with the PR number (read off the cached /pull/<N> URL) when it has one
+label="$branch"
+pr_num=$(printf '%s' "$pr_url" | sed -nE 's#.*/pull/([0-9]+).*#\1#p')
+[ -n "$pr_num" ] && label="$branch (PR #$pr_num)"
+
 # Branch, linked when origin is on GitHub
 branch_part=""
-branch_text="$branch"
+branch_text="$label"
 # OSC 8 hyperlink: clickable in terminals that support it, plain text elsewhere
-[ -n "$link_url" ] && branch_text="\033]8;;${link_url}\a${branch}\033]8;;\a"
+[ -n "$link_url" ] && branch_text="\033]8;;${link_url}\a${label}\033]8;;\a"
 [ -n "$branch" ] && branch_part=" \033[35m${branch_text}\033[0m "
 
 # No context figures until the first reply (fresh session, /clear): model, account, branch
