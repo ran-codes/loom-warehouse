@@ -1,8 +1,9 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
-# Build every worktree into the primary clone's target/ (parent of git's common dir).
-# An existing CARGO_TARGET_DIR env var still wins.
-export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(`git rev-parse --path-format=absolute --git-common-dir`) / "target")
+# Each worktree builds into its own target/, so worktrees never wait on one cargo lock.
+# sccache shares compiled crates across them. An existing CARGO_TARGET_DIR env var still wins.
+export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
+export RUSTC_WRAPPER := "sccache"
 
 dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 
