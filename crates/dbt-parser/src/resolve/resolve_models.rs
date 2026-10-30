@@ -1834,10 +1834,12 @@ fn merge_python_config(
     }
 
     let python_config = *python_file_info.config.clone();
-    // Capture static_analysis BEFORE apply_resolve_defaults so we can distinguish an
-    // explicitly-set value from one inherited from the CLI --static-analysis flag.
-    let pre_defaults_config = config_resolver
-        .with_configs_and_root_overlay(&fqn, &[Some(&properties_config), Some(&python_config)]);
+    // Only warn on static_analysis set on the model itself (dbt.config() or schema.yml).
+    // A value inherited from dbt_project.yml or the CLI flag targets SQL models.
+    let explicit_static_analysis = python_config
+        .static_analysis
+        .clone()
+        .or_else(|| properties_config.static_analysis.clone());
     let merged_config = config_resolver.resolve_with_overrides(
         &fqn,
         &fqn,
@@ -1856,7 +1858,7 @@ fn merge_python_config(
         },
     );
 
-    if let Some(spanned) = pre_defaults_config.static_analysis {
+    if let Some(spanned) = explicit_static_analysis {
         crate::validation::warn_python_static_analysis(spanned.into_inner(), &unique_id);
     }
 
