@@ -1,10 +1,5 @@
 {
-    "permissions": {
-      "defaultMode": "auto"
-    },
-    "sandbox": {
-      "network": {
-        "allowedDomains": ["public.cdn.getdbt.com"]
-      }
-    }
+  "permissions": {
+    "defaultMode": "auto"
   }
+}
