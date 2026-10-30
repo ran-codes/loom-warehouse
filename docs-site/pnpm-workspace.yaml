@@ -1,0 +1,7 @@
+engineStrict: true
+
+# Supply-chain guard: don't install versions published less than a day ago.
+minimumReleaseAge: 1440
+
+# Skip pnpm's pre-run dependency check banner before every `pnpm <script>`.
+verifyDepsBeforeRun: false

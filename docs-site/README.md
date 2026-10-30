@@ -4,13 +4,13 @@ Source for the Loom Warehouse documentation site, built with [Astro Starlight](h
 
 ## Develop
 
-Requires Node (see `engines` in `package.json`). From this folder:
+Requires Node (see `engines` in `package.json`) and [pnpm](https://pnpm.io) (`npm install -g pnpm`). Use pnpm, not npm, so the lockfile stays the only one. pnpm keeps one global package store and hard-links it into each worktree, so installing in a new worktree takes seconds. From this folder:
 
 ```sh
-npm install
-npm run dev      # http://localhost:4321/loom-warehouse/
-npm run build    # outputs to ./dist
-npm run preview  # serve the built site
+pnpm install
+pnpm dev         # http://localhost:4321/loom-warehouse/
+pnpm build       # outputs to ./dist
+pnpm preview     # serve the built site
 ```
 
 ## Content
