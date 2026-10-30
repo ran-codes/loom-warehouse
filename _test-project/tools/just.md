@@ -8,9 +8,9 @@ Install: `winget install Casey.Just`
 
 | Recipe | Does |
 |---|---|
-| `just dev` | `cargo build -p dbt-sa-cli`, then `dbt deps` + `dbt build` on the harness |
-| `just dbt <cmd>` | Runs the debug binary (`<primary clone>/target/debug/dbt.exe`) in `_test-project` with `--profiles-dir .` |
-| `just clean` | Deletes harness outputs (`target`, `logs`, `dbt_packages`, `external/*.parquet`/`.duckdb`) |
+| `just dev` | `cargo build -p dbt-sa-cli`, then `dbt deps` + `dbt build` on the test project |
+| `just dbt <cmd>` | Runs the debug binary (`<primary clone>/target/debug/dbt.exe`) in `_test-project/project` with `--profiles-dir .` |
+| `just clean` | Deletes test project outputs (`target`, `logs`, `dbt_packages`, `external/*.parquet`/`.duckdb`) |
 
 Recipes run in PowerShell (`set windows-shell`).
 
