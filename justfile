@@ -16,8 +16,19 @@ default:
     @just --list
 
 # compile the debug binary, then run `dbt build` on the test project
+#
+# DX: the build hides two Cargo warnings that come from upstream's root Cargo.toml,
+# which we leave unedited to keep upstream merges clean: an unused `arrow-flight` patch
+# (plus its help lines) and a dev profile for upstream's private `sdf-frontend` crate.
+# Every other warning still prints, and a failed build still stops the recipe. See #28.
 dev:
-    cargo build -p dbt-sa-cli
+    @$hide = $false; cargo build -p dbt-sa-cli --color always 2>&1 | ForEach-Object { \
+        $line = "$_"; $plain = $line -replace '\x1b\[[0-9;]*m', ''; \
+        if ($plain -match '^warning: patch `arrow-flight ') { $hide = $true; return }; \
+        if ($plain -match '^warning: profile package spec `sdf-frontend`') { return }; \
+        if ($hide -and $plain -match '^(help: |      \S)') { return }; \
+        $hide = $false; $line \
+    }; exit $LASTEXITCODE
     just dbt deps
     just dbt build
 
