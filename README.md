@@ -3,6 +3,10 @@
 This software is derived from dbt™ software ([dbt-labs/dbt](https://github.com/dbt-labs/dbt), Apache-2.0).
 Modifications: local Python/R model execution for DuckDB. See [Discussion #1](https://github.com/ran-codes/loom-warehouse/discussions/1).
 
+**Scope:** this repo is a frozen fork of dbt OSS, which supports many adapters. Loom Warehouse
+supports only DuckDB. Adapter changes go only to the DuckDB adapter; every other adapter stays
+as forked.
+
 *dbt is a trademark of dbt Labs, LLC. This project is not affiliated with or endorsed by dbt Labs.*
 
 ---
