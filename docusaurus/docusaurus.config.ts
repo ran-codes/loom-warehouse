@@ -17,6 +17,8 @@ const config: Config = {
   // Project Pages URL: https://ran-codes.github.io/loom-warehouse/
   url: 'https://ran-codes.github.io',
   baseUrl: '/loom-warehouse/',
+  // GitHub Pages adds trailing slashes unless this is set explicitly.
+  trailingSlash: false,
   organizationName: 'ran-codes',
   projectName: 'loom-warehouse',
 
