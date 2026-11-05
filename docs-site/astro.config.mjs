@@ -18,12 +18,16 @@ export default defineConfig({
 					items: [{ autogenerate: { directory: 'getting-started' } }],
 				},
 				{
-					label: 'Developer Guides',
-					items: [{ autogenerate: { directory: 'dev-guides' } }],
+					label: 'User Guides',
+					items: [{ autogenerate: { directory: 'user-guides' } }],
 				},
 				{
 					label: 'Reference',
 					items: [{ autogenerate: { directory: 'reference' } }],
+				},
+				{
+					label: 'Developer Guides',
+					items: [{ autogenerate: { directory: 'dev-guides' } }],
 				},
 			],
 		}),

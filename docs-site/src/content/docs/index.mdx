@@ -19,8 +19,18 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 		href={`${import.meta.env.BASE_URL}/getting-started/introduction/`}
 	/>
 	<LinkCard
+		title="User Guides"
+		description="How to do specific tasks with Python and R models."
+		href={`${import.meta.env.BASE_URL}/user-guides/overview/`}
+	/>
+	<LinkCard
+		title="Reference"
+		description="Config keys, CLI flags, and model APIs."
+		href={`${import.meta.env.BASE_URL}/reference/overview/`}
+	/>
+	<LinkCard
 		title="Developer Guides"
-		description="Task-focused walkthroughs."
+		description="For maintainers: building, testing, and worktrees."
 		href={`${import.meta.env.BASE_URL}/dev-guides/overview/`}
 	/>
 </CardGrid>
