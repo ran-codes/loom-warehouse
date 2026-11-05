@@ -1,17 +1,16 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
-# Every checkout of this clone builds into the primary clone's target/ (found through git's
-# common dir, so it works wherever the worktrees live). Dependencies compile once and a fresh
-# worktree recompiles only the ~80 workspace crates (~2 min, not ~5). The cost: builds in two
-# worktrees at once queue on cargo's lock. sccache was tried instead and dropped — it hashes
-# the worktree path, so a new worktree never hit the cache, and even a same-path rebuild only
-# saved ~1 min of 5 (docs/build-times/2026-11-05*). An existing CARGO_TARGET_DIR env var still wins.
-export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(`git rev-parse --path-format=absolute --git-common-dir`) / "target")
+# Every checkout of this clone shares one cargo build dir: the primary clone's target/, found
+# through git's common dir so it works wherever the worktrees live. Dependencies compile once
+# and a fresh worktree recompiles only the ~80 workspace crates (~2 min, not ~5). The final
+# dbt.exe still lands in each checkout's own target/debug/, so branches never swap binaries.
+# The cost: cargo commands in two checkouts at once (build, check, test, gate) queue on the
+# shared lock. sccache was tried instead and dropped — it hashes the worktree path, so a new
+# worktree never hit the cache (docs/build-times/2026-11-05*). Existing env vars still win.
+export CARGO_BUILD_BUILD_DIR := env("CARGO_BUILD_BUILD_DIR", parent_directory(`git rev-parse --path-format=absolute --git-common-dir`) / "target")
+export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
 
-# The shared target dir holds one debug/dbt.exe, so the last worktree to build would win.
-# build.ps1 copies the exe into this worktree after every build; `just dbt` runs that copy,
-# so branches under test never swap binaries under each other.
-dbt_bin := justfile_directory() / "target/debug/dbt.exe"
+dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 
 # Interpreter for Python models. Relative to _test-project/project (the `dbt` recipe's working dir),
 # so it points at the venv `just py-env` creates. Windows layout for now; the uv step of
