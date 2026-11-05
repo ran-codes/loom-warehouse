@@ -7,7 +7,9 @@ $logDir = Join-Path $PSScriptRoot '..\docs\build-times'
 # Captured before the build so the record says what tree was compiled. The log
 # directory is excluded: earlier uncommitted records must not read as a dirty tree.
 $dirty = [bool](git status --porcelain -- . ':!docs/build-times')
+# Empty on a detached HEAD; null keeps the JSON field honest instead of a `{}`.
 $branch = git branch --show-current
+if (-not $branch) { $branch = $null }
 $sha = git rev-parse --short HEAD
 $worktree = Split-Path -Leaf (git rev-parse --show-toplevel)
 

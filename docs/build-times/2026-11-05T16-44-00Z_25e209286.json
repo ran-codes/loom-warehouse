@@ -1,0 +1,10 @@
+{
+    "timestamp":  "2026-11-05T16:44:00Z",
+    "branch":  null,
+    "sha":  "25e209286",
+    "worktree":  "benchmark-warm-check",
+    "dirty":  false,
+    "host":  "RAN-OMEN-GPU",
+    "seconds":  111,
+    "crates_rebuilt":  81
+}

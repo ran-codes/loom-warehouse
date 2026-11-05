@@ -1,7 +1,7 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
 # All worktrees build into one target/ beside them, so dependencies compile once and a fresh
-# worktree starts warm (~40s, not ~5 min). The cost: builds in two worktrees at once queue on
+# worktree recompiles only the ~80 workspace crates (~2 min, not ~5). The cost: builds in two worktrees at once queue on
 # cargo's lock. sccache was tried instead and dropped — it hashes the worktree path, so a new
 # worktree never hit the cache, and even a same-path rebuild only saved ~1 min of 5
 # (docs/build-times/2026-11-05*). An existing CARGO_TARGET_DIR env var still wins.
