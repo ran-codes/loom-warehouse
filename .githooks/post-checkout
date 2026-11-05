@@ -6,7 +6,7 @@
 #
 # Git never runs hooks from inside a repo on its own, so each clone enables this once:
 #   git config core.hooksPath .githooks
-# Progress lands in target/prewarm.log of the new worktree.
+# Progress lands in target/prewarm.log of the new worktree; no docs/build-times record is written.
 
 [ "$3" = "1" ] || exit 0
 command -v just >/dev/null 2>&1 || exit 0
@@ -20,5 +20,5 @@ mkdir -p "$root/target"
 # git's pipes and the checkout returns at once (a redirected child keeps the caller waiting
 # until the build ends). cmd does the log redirect inside the detached process instead.
 powershell.exe -NoLogo -NoProfile -Command \
-    "Start-Process cmd -ArgumentList '/c just build > target\prewarm.log 2>&1' -WorkingDirectory '$root' -WindowStyle Hidden"
+    "Start-Process cmd -ArgumentList '/c just build -NoLog > target\prewarm.log 2>&1' -WorkingDirectory '$root' -WindowStyle Hidden"
 echo "post-checkout: prewarming build in the background (target/prewarm.log)"

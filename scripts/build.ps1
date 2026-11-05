@@ -1,7 +1,10 @@
 # Timed debug build for `just build`: runs cargo with --timings (HTML report in
 # $CARGO_TARGET_DIR/cargo-timings/) and writes one JSON record per build to
 # docs/build-times/<utc-timestamp>_<sha>.json. One file per build, so branches that
-# both log a build never conflict on merge.
+# both log a build never conflict on merge. -NoLog builds without writing the record
+# (the post-checkout prewarm uses it, so a new worktree starts with no untracked file).
+param([switch]$NoLog)
+
 $logDir = Join-Path $PSScriptRoot '..\docs\build-times'
 
 # Captured before the build so the record says what tree was compiled. The log
@@ -52,6 +55,11 @@ $record = [ordered]@{
     host           = $env:COMPUTERNAME
     seconds        = [math]::Round($sw.Elapsed.TotalSeconds)
     crates_rebuilt = $rebuilt
+}
+
+if ($NoLog) {
+    Write-Host "Built in $($record.seconds)s, $rebuilt crates (not logged)"
+    exit 0
 }
 
 New-Item -ItemType Directory -Force $logDir | Out-Null

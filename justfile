@@ -1,11 +1,12 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
-# All worktrees build into one target/ beside them, so dependencies compile once and a fresh
-# worktree recompiles only the ~80 workspace crates (~2 min, not ~5). The cost: builds in two worktrees at once queue on
-# cargo's lock. sccache was tried instead and dropped — it hashes the worktree path, so a new
-# worktree never hit the cache, and even a same-path rebuild only saved ~1 min of 5
-# (docs/build-times/2026-11-05*). An existing CARGO_TARGET_DIR env var still wins.
-export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(justfile_directory()) / ".cargo-target")
+# Every checkout of this clone builds into the primary clone's target/ (found through git's
+# common dir, so it works wherever the worktrees live). Dependencies compile once and a fresh
+# worktree recompiles only the ~80 workspace crates (~2 min, not ~5). The cost: builds in two
+# worktrees at once queue on cargo's lock. sccache was tried instead and dropped — it hashes
+# the worktree path, so a new worktree never hit the cache, and even a same-path rebuild only
+# saved ~1 min of 5 (docs/build-times/2026-11-05*). An existing CARGO_TARGET_DIR env var still wins.
+export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(`git rev-parse --path-format=absolute --git-common-dir`) / "target")
 
 # The shared target dir holds one debug/dbt.exe, so the last worktree to build would win.
 # build.ps1 copies the exe into this worktree after every build; `just dbt` runs that copy,
@@ -25,14 +26,14 @@ export RUST_MIN_STACK := env("RUST_MIN_STACK", "8388608")
 default:
     @just --list
 
-# compile the debug binary; logs one JSON record per build to docs/build-times/
+# compile the debug binary; logs one JSON record per build to docs/build-times/ (-NoLog skips it)
 #
 # DX: the build hides two Cargo warnings that come from upstream's root Cargo.toml,
 # which we leave unedited to keep upstream merges clean: an unused `arrow-flight` patch
 # (plus its help lines) and a dev profile for upstream's private `sdf-frontend` crate.
 # Every other warning still prints, and a failed build still stops the recipe. See #28.
-build:
-    powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
+build *args:
+    powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1 {{args}}
 
 # compile the debug binary, then run `dbt build` on the test project
 dev:
