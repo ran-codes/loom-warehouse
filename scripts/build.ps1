@@ -28,6 +28,16 @@ $code = $LASTEXITCODE
 $sw.Stop()
 if ($code -ne 0) { exit $code }
 
+# The shared target dir has one debug/dbt.exe that every worktree overwrites. Keep this
+# worktree's own copy (what `just dbt` runs) so parallel branches don't swap binaries.
+# Skipped when CARGO_TARGET_DIR already points at this worktree's target/. The exe is
+# 185 MB (~1s); its 1.3 GB dbt.pdb stays behind, so panics print addresses, not names.
+$built = Join-Path $env:CARGO_TARGET_DIR 'debug'
+$local = Join-Path (git rev-parse --show-toplevel) 'target\debug'
+if ((Resolve-Path $built).Path -ne (New-Item -ItemType Directory -Force $local).FullName) {
+    Copy-Item (Join-Path $built 'dbt.exe') $local -Force
+}
+
 # crates_rebuilt counts every `Compiling` line. With the shared target dir a warm build
 # recompiles only the workspace crates (~20); ~740 means the dependencies were rebuilt too.
 $rebuilt = @($lines | Where-Object { ($_ -replace '\x1b\[[0-9;]*m', '') -match '^\s*Compiling ' }).Count

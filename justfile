@@ -7,7 +7,10 @@ set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 # (docs/build-times/2026-11-05*). An existing CARGO_TARGET_DIR env var still wins.
 export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(justfile_directory()) / ".cargo-target")
 
-dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
+# The shared target dir holds one debug/dbt.exe, so the last worktree to build would win.
+# build.ps1 copies the exe into this worktree after every build; `just dbt` runs that copy,
+# so branches under test never swap binaries under each other.
+dbt_bin := justfile_directory() / "target/debug/dbt.exe"
 
 # Interpreter for Python models. Relative to _test-project/project (the `dbt` recipe's working dir),
 # so it points at the venv `just py-env` creates. Windows layout for now; the uv step of
