@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs-site/**'
-      - '.github/workflows/docs-site.yml'
+      - 'docusaurus/**'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 permissions:
@@ -20,18 +20,29 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docusaurus
     steps:
       # Only the docs site is needed; skip the Rust workspace entirely.
-      - name: Checkout docs-site only
+      - name: Checkout docusaurus only
         uses: actions/checkout@v7
         with:
-          sparse-checkout: docs-site
+          sparse-checkout: docusaurus
           filter: blob:none
-      - name: Install, build, and upload
-        uses: withastro/action@v6
+      - uses: pnpm/action-setup@v6
         with:
-          path: ./docs-site
+          package_json_file: docusaurus/package.json
+      - uses: actions/setup-node@v7
+        with:
           node-version: 24
+          cache: pnpm
+          cache-dependency-path: docusaurus/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: docusaurus/build
 
   deploy:
     needs: build

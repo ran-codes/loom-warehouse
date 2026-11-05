@@ -13,7 +13,7 @@ This repo started from `dbt-labs/dbt` but is not a GitHub fork. These are per-cl
   ```
 
   This discards uncommitted edits. Each worktree needs its own run.
-- **Worktree prewarm hook on.** `git config core.hooksPath .githooks` — then every `git worktree add` builds the new worktree in the background. Git never enables repo hooks by itself. Details: the [Worktrees and builds](https://ran-codes.github.io/loom-warehouse/dev-guides/worktrees/) dev guide (`docs-site/src/content/docs/dev-guides/worktrees.md`).
+- **Worktree prewarm hook on.** `git config core.hooksPath .githooks` — then every `git worktree add` builds the new worktree in the background. Git never enables repo hooks by itself. Details: the [Worktrees and builds](https://ran-codes.github.io/loom-warehouse/dev-guides/worktrees/) dev guide (`docusaurus/docs/dev-guides/worktrees.md`).
 - **Windows: Developer Mode on.** Some tests create symlinks (`dbt-deps` installs `local:` packages that way), and Windows refuses symlinks from a normal user unless Developer Mode is on — they fail with os error 1314. Settings → System → For developers → Developer Mode. Once per machine, not per clone; leave it on.
 
 The rest of this file is the inherited dbt guide.

@@ -112,14 +112,14 @@ exclude = [
 resolver = "2"
 
 [workspace.package]
-authors = ["dbt Labs <info@getdbt.com>"]
-description = "Fusion: A fast dbt engine, SQL compiler, local development framework, and in-memory analytical database"
+authors = ["Ran Li"]
+description = "Loom Warehouse: dbt with Python and R models"
 edition = "2024"
-homepage = "https://getdbt.com"
+homepage = "https://ran-codes.github.io/loom-warehouse/"
 keywords = ["sql", "parquet", "json", "csv", "dbt"]
 license = "Apache-2.0"
-repository = "https://github.com/dbt-labs/dbt-core"
-version = "2.0.5"
+repository = "https://github.com/ran-codes/loom-warehouse"
+version = "0.1.0"
 
 [patch.crates-io]
 
