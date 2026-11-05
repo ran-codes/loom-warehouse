@@ -50,7 +50,7 @@ Run from the repo root. `just` with no args lists them.
 
 | Recipe | Use it when |
 |---|---|
-| `just preview` | Live-preview the Loom Warehouse docs site (`docs-site/`, Astro Starlight) at `localhost:4321/loom-warehouse/`. Installs deps via pnpm first. **"start preview", "start docs", "docs dev", "preview the docs" all mean this.** |
+| `just preview` | Live-preview the Loom Warehouse docs site (`docusaurus/`, Docusaurus) at `localhost:3000/loom-warehouse/`. Installs deps via pnpm first. **"start preview", "start docs", "docs dev", "preview the docs" all mean this.** |
 | `just build` | Compile the debug `dbt` binary (timed; logs one JSON record to `docs/build-times/`) |
 | `just dev` | `just build`, then `dbt deps` + `dbt build` on `_test-project/` |
 | `just prewarm` | `just build -NoLog` + the `dbt-sa-cli` test binaries. The post-checkout hook runs it in the background for every new worktree (~10 min, `target/prewarm.log`); you rarely run it by hand |
