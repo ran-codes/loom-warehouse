@@ -1,25 +1,27 @@
 #!/bin/sh
 # Pre-warms a new worktree: starts `just prewarm` (debug binary + dbt-sa-cli test binaries,
-# ~7 min on this machine, docs/build-times/) in the background so the cold build is done
-# before anyone needs it. Git runs this hook after `git worktree add` and `git clone`, where
-# the previous HEAD ($1) is the null ref; ordinary checkouts and rebases are skipped.
-# Nothing happens when the worktree already has its dbt.exe.
+# ~10 min on this machine) in the background so the cold build is done before anyone needs
+# it. Git runs this hook after `git worktree add` and `git clone`, where the previous HEAD
+# ($1) is the null ref; ordinary checkouts and rebases are skipped.
+# Set LOOM_NO_PREWARM=1 to skip it for one worktree (docs-only, review, bisect).
 #
 # Git never runs hooks from inside a repo on its own, so each clone enables this once:
 #   git config core.hooksPath .githooks
 # Progress lands in target/prewarm.log of the new worktree; no docs/build-times record is written.
 
 [ "$1" = "0000000000000000000000000000000000000000" ] || exit 0
+[ -n "$LOOM_NO_PREWARM" ] && exit 0
 command -v just >/dev/null 2>&1 || exit 0
 
 root=$(git rev-parse --show-toplevel) || exit 0
 [ -f "$root/justfile" ] || exit 0
-[ -f "$root/target/debug/dbt.exe" ] && exit 0
 
 mkdir -p "$root/target"
 # Start-Process without redirects goes through ShellExecute, so the build inherits none of
 # git's pipes and the checkout returns at once (a redirected child keeps the caller waiting
 # until the build ends). cmd does the log redirect inside the detached process instead.
+# The launcher drops itself to BelowNormal first; Windows hands that class down to every
+# process the build spawns, so parallel prewarms never starve foreground work.
 powershell.exe -NoLogo -NoProfile -Command \
-    "Start-Process cmd -ArgumentList '/c just prewarm > target\prewarm.log 2>&1' -WorkingDirectory '$root' -WindowStyle Hidden"
-echo "post-checkout: prewarming build in the background (target/prewarm.log)"
+    "(Get-Process -Id \$PID).PriorityClass = 'BelowNormal'; Start-Process cmd -ArgumentList '/c just prewarm > target\prewarm.log 2>&1' -WorkingDirectory '$root' -WindowStyle Hidden"
+echo "post-checkout: prewarming build in the background (target/prewarm.log; LOOM_NO_PREWARM=1 skips)"

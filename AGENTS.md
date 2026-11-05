@@ -53,7 +53,7 @@ Run from the repo root. `just` with no args lists them.
 | `just preview` | Live-preview the Loom Warehouse docs site (`docs-site/`, Astro Starlight) at `localhost:4321/loom-warehouse/`. Installs deps via pnpm first. **"start preview", "start docs", "docs dev", "preview the docs" all mean this.** |
 | `just build` | Compile the debug `dbt` binary (timed; logs one JSON record to `docs/build-times/`) |
 | `just dev` | `just build`, then `dbt deps` + `dbt build` on `_test-project/` |
-| `just prewarm` | `just build -NoLog` + the `dbt-sa-cli` test binaries. The post-checkout hook runs it in the background for every new worktree (~7 min, `target/prewarm.log`); you rarely run it by hand |
+| `just prewarm` | `just build -NoLog` + the `dbt-sa-cli` test binaries. The post-checkout hook runs it in the background for every new worktree (~10 min, `target/prewarm.log`); you rarely run it by hand |
 | `just check [crate]` | `cargo fmt --check` + `cargo clippy -D warnings`. Default: every crate changed vs main; name one to narrow. Compiles to type-check only; ~7s when nothing changed |
 | `just test [crate]` | `cargo nextest run`. Default: every crate changed vs main; name one to narrow. ~3s when nothing changed |
 | `just gate [crate]` | The local gate before pushing: fmt + clippy + nextest across the whole workspace — what CI runs. ~3 min. Name a crate to run the same steps on it alone |
@@ -63,7 +63,7 @@ Run from the repo root. `just` with no args lists them.
 
 `just preview` is a long-running dev server — start it in the background.
 
-Each worktree has its own `target/`; nothing is shared between worktrees (see `_test-project/tools/just.md`). A new worktree is prewarmed by `.githooks/post-checkout`, which each clone enables once with `git config core.hooksPath .githooks`.
+Each worktree has its own `target/`; nothing is shared between worktrees (see `_test-project/tools/just.md`). A new worktree is prewarmed by `.githooks/post-checkout`, which each clone enables once with `git config core.hooksPath .githooks`. It runs at below-normal priority; set `LOOM_NO_PREWARM=1` when running `git worktree add` to skip it.
 
 ## Test Suite
 
