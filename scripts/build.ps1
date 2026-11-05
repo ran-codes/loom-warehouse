@@ -4,26 +4,6 @@
 # both log a build never conflict on merge.
 $logDir = Join-Path $PSScriptRoot '..\docs\build-times'
 
-if (-not (Get-Command sccache -ErrorAction SilentlyContinue)) {
-    Write-Error 'sccache not found. Install it: winget install Mozilla.sccache'
-    exit 1
-}
-
-# sccache stats are server-wide; snapshot before and after and log the difference.
-# Builds running at once in other worktrees still leak into these counts.
-function Get-SccacheCounts {
-    $json = sccache --show-stats --stats-format json 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $json) { return $null }
-    $stats = ($json | ConvertFrom-Json).stats
-    $sum = { param($o) if ($null -eq $o) { 0 } else { [int](($o.PSObject.Properties.Value | Measure-Object -Sum).Sum) } }
-    [pscustomobject]@{
-        hits          = & $sum $stats.cache_hits.counts
-        misses        = & $sum $stats.cache_misses.counts
-        non_cacheable = & $sum $stats.not_cached
-    }
-}
-$before = Get-SccacheCounts
-
 # Captured before the build so the record says what tree was compiled. The log
 # directory is excluded: earlier uncommitted records must not read as a dirty tree.
 $dirty = [bool](git status --porcelain -- . ':!docs/build-times')
@@ -46,14 +26,9 @@ $code = $LASTEXITCODE
 $sw.Stop()
 if ($code -ne 0) { exit $code }
 
-# crates_rebuilt counts every `Compiling` line, sccache hits included. The sccache
-# fields split that into hits, misses, and non-cacheable (incremental workspace crates).
+# crates_rebuilt counts every `Compiling` line. With the shared target dir a warm build
+# recompiles only the workspace crates (~20); ~740 means the dependencies were rebuilt too.
 $rebuilt = @($lines | Where-Object { ($_ -replace '\x1b\[[0-9;]*m', '') -match '^\s*Compiling ' }).Count
-$after = Get-SccacheCounts
-$delta = @{}
-foreach ($k in 'hits', 'misses', 'non_cacheable') {
-    $delta[$k] = if ($before -and $after) { [math]::Max(0, $after.$k - $before.$k) } else { $null }
-}
 
 $now = (Get-Date).ToUniversalTime()
 $record = [ordered]@{
@@ -65,9 +40,6 @@ $record = [ordered]@{
     host           = $env:COMPUTERNAME
     seconds        = [math]::Round($sw.Elapsed.TotalSeconds)
     crates_rebuilt = $rebuilt
-    cache_hits     = $delta.hits
-    cache_misses   = $delta.misses
-    non_cacheable  = $delta.non_cacheable
 }
 
 New-Item -ItemType Directory -Force $logDir | Out-Null

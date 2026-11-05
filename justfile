@@ -1,9 +1,11 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
-# Each worktree builds into its own target/, so worktrees never wait on one cargo lock.
-# sccache shares compiled crates across them. An existing CARGO_TARGET_DIR env var still wins.
-export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
-export RUSTC_WRAPPER := "sccache"
+# All worktrees build into one target/ beside them, so dependencies compile once and a fresh
+# worktree starts warm (~40s, not ~5 min). The cost: builds in two worktrees at once queue on
+# cargo's lock. sccache was tried instead and dropped — it hashes the worktree path, so a new
+# worktree never hit the cache, and even a same-path rebuild only saved ~1 min of 5
+# (docs/build-times/2026-11-05*). An existing CARGO_TARGET_DIR env var still wins.
+export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", parent_directory(justfile_directory()) / ".cargo-target")
 
 dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
 
