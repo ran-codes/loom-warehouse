@@ -67,10 +67,4 @@ Each worktree has its own `target/`; nothing is shared between worktrees (see `_
 
 ## Test Suite
 
-Dev loop: `just check [crate]` + `just test [crate]`. Gate before pushing: `just gate` (whole workspace, mirrors CI). CI runs the same three cargo commands on Linux, opt-in per PR via the `CI Trigger` label.
-
-| Command | Scope |
-|---|---|
-| `just check` | fmt + clippy, crates changed vs main |
-| `just test` | nextest, crates changed vs main |
-| `just gate` | all three, all crates |
+Not testing suite for this repo right now. do not run tests in dev-log.
