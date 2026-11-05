@@ -10,16 +10,17 @@ hero:
       icon: right-arrow
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid>
-	<Card title="Getting Started" icon="rocket">
-		Install Loom Warehouse and run your first project.
-	</Card>
-	<Card title="Guides" icon="open-book">
-		Task-focused walkthroughs.
-	</Card>
-	<Card title="Reference" icon="information">
-		Commands, configuration, and APIs.
-	</Card>
+	<LinkCard
+		title="Getting Started"
+		description="What Loom Warehouse is and why it exists."
+		href={`${import.meta.env.BASE_URL}/getting-started/introduction/`}
+	/>
+	<LinkCard
+		title="Developer Guides"
+		description="Task-focused walkthroughs."
+		href={`${import.meta.env.BASE_URL}/dev-guides/overview/`}
+	/>
 </CardGrid>
