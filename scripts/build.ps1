@@ -31,8 +31,8 @@ $code = $LASTEXITCODE
 $sw.Stop()
 if ($code -ne 0) { exit $code }
 
-# crates_rebuilt counts every `Compiling` line. With the shared build dir a fresh worktree
-# recompiles only the workspace crates (~80); ~740 means the dependencies were rebuilt too.
+# crates_rebuilt counts every `Compiling` line: ~740 for a cold worktree, ~80 when only the
+# workspace crates rebuild, 0 for a no-change rebuild.
 $rebuilt = @($lines | Where-Object { ($_ -replace '\x1b\[[0-9;]*m', '') -match '^\s*Compiling ' }).Count
 
 $now = (Get-Date).ToUniversalTime()

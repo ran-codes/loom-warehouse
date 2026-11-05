@@ -1,13 +1,12 @@
 set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
 
-# Every checkout of this clone shares one cargo build dir: the primary clone's target/, found
-# through git's common dir so it works wherever the worktrees live. Dependencies compile once
-# and a fresh worktree recompiles only the ~80 workspace crates (~2 min, not ~5). The final
-# dbt.exe still lands in each checkout's own target/debug/, so branches never swap binaries.
-# The cost: cargo commands in two checkouts at once (build, check, test, gate) queue on the
-# shared lock. sccache was tried instead and dropped — it hashes the worktree path, so a new
-# worktree never hit the cache (docs/build-times/2026-11-05*). Existing env vars still win.
-export CARGO_BUILD_BUILD_DIR := env("CARGO_BUILD_BUILD_DIR", parent_directory(`git rev-parse --path-format=absolute --git-common-dir`) / "target")
+# Each worktree builds into its own target/: no shared cache of any kind. A fresh worktree
+# pays a ~4-5 min cold build once, and .githooks/post-checkout starts it in the background
+# the moment the worktree is created (`just prewarm`), so nobody waits for it.
+# Sharing was tried and rejected (PR #39, docs/build-times/2026-11-05*): a shared target or
+# build dir lets worktrees overwrite each other's dbt.exe, because cargo names Windows
+# binaries without a per-checkout hash; sccache hashes the worktree path, so a new worktree
+# never hit its cache; kache copies instead of linking on NTFS. An existing env var still wins.
 export CARGO_TARGET_DIR := env("CARGO_TARGET_DIR", justfile_directory() / "target")
 
 dbt_bin := CARGO_TARGET_DIR / "debug/dbt.exe"
@@ -33,6 +32,12 @@ default:
 # Every other warning still prints, and a failed build still stops the recipe. See #28.
 build *args:
     powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1 {{args}}
+
+# warm a fresh worktree: the debug binary, then the dbt-sa-cli test binaries (~5 + ~2 min,
+# no build-times record). .githooks/post-checkout runs this in the background on worktree add.
+prewarm:
+    just build -NoLog
+    cargo nextest run --no-run -p dbt-sa-cli
 
 # compile the debug binary, then run `dbt build` on the test project
 dev:

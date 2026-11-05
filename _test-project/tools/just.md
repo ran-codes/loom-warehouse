@@ -9,14 +9,15 @@ Install: `winget install Casey.Just`
 | Recipe | Does |
 |---|---|
 | `just dev` | `cargo build -p dbt-sa-cli`, then `dbt deps` + `dbt build` on the test project |
-| `just dbt <cmd>` | Runs the debug binary (`<primary clone>/target/debug/dbt.exe`) in `_test-project/project` with `--profiles-dir .` |
+| `just dbt <cmd>` | Runs this worktree's debug binary (`target/debug/dbt.exe`) in `_test-project/project` with `--profiles-dir .` |
+| `just prewarm` | `just build -NoLog` + the `dbt-sa-cli` test binaries; what the post-checkout hook runs in the background for a new worktree |
 | `just clean` | Deletes test project outputs (`target`, `logs`, `dbt_packages`, `external/*.parquet`/`.duckdb`) |
 
 Recipes run in PowerShell (`set windows-shell`).
 
-## Shared target dir
+## Worktrees and the build cache
 
-- All worktrees build into the primary clone's `target/`. The justfile exports `CARGO_TARGET_DIR` for this; set `CARGO_TARGET_DIR` yourself to override it.
-- A new worktree recompiles the repo's own crates once, because checkout gives every file a new mtime. Third-party crates are reused.
-- Plain `cargo` outside `just` still uses the worktree-local `target/`.
-- Known limits: the last build owns the single `dbt.exe`, and edits made before another worktree's build can be judged fresh and skip a rebuild. See [the known-limits comment](https://github.com/ran-codes/loom-warehouse/issues/12#issuecomment-5800113495).
+- Every worktree builds into its own `target/` (the justfile exports `CARGO_TARGET_DIR`; set it yourself to override). Nothing is shared between worktrees, so a worktree can only ever run the `dbt.exe` it built.
+- A new worktree therefore pays one cold build, ~4–5 min on a fast Windows machine. `.githooks/post-checkout` starts `just prewarm` in the background the moment `git worktree add` finishes, so it is usually done before you need it; progress is in `target/prewarm.log`.
+- The hook is committed but git never enables repo hooks by itself. Once per clone: `git config core.hooksPath .githooks`.
+- Sharing was tried and rejected in [PR #39](https://github.com/ran-codes/loom-warehouse/pull/39): a shared target or build dir lets worktrees overwrite each other's `dbt.exe` (cargo names Windows binaries without a per-checkout hash), sccache never hit across worktrees, and kache copies instead of linking on NTFS. Timings are logged in `docs/build-times/`.
