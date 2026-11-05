@@ -1,0 +1,10 @@
+{
+    "timestamp":  "2026-11-05T16:41:38Z",
+    "branch":  "ran-codes/benchamrk-cold-cargo-build",
+    "sha":  "f3cc28674",
+    "worktree":  "benchamrk-cold-cargo-build",
+    "dirty":  true,
+    "host":  "RAN-OMEN-GPU",
+    "seconds":  251,
+    "crates_rebuilt":  741
+}

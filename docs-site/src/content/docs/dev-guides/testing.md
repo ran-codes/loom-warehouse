@@ -60,7 +60,7 @@ Check and test only compile — they never produce the app. Every command recomp
 
 ## Timings
 
-Windows, per-worktree `target/` + sccache.
+Windows, per-worktree `target/`. (Measured while sccache was still on; it was removed in PR #39 after measuring 0 cross-worktree hits, so cold numbers may differ slightly.)
 
 | Recipe | Cold | Warm (nothing changed) |
 |---|---|---|
