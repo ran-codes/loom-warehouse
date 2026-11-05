@@ -54,7 +54,7 @@ const config: Config = {
   ],
 
   // Writes llms.txt and llms-full.txt into the build output (llmstxt.org).
-  plugins: ['docusaurus-plugin-llms'],
+  plugins: [['docusaurus-plugin-llms', {generateMarkdownFiles: true}]],
 
   themeConfig: {
     colorMode: {
