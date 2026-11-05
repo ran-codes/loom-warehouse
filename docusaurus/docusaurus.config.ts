@@ -35,6 +35,18 @@ const config: Config = {
           // Serve docs at the site root, like the Starlight site did.
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
+          // docs/ is the unreleased working copy. At each release, freeze it
+          // with `pnpm docusaurus docs:version <x.y.z>`.
+          // Test: v0.2 (docs/) served at the root, v0.1.0-alpha archived.
+          lastVersion: 'current',
+          versions: {
+            current: {
+              label: 'v0.2',
+            },
+            '0.1.0-alpha': {
+              label: 'v0.1.0-alpha',
+            },
+          },
         },
         blog: false,
         theme: {
@@ -60,6 +72,10 @@ const config: Config = {
           sidebarId: 'docsSidebar',
           position: 'left',
           label: 'Docs',
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'right',
         },
         {
           href: 'https://github.com/ran-codes/loom-warehouse',

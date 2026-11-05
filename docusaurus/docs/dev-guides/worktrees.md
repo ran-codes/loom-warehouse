@@ -50,3 +50,7 @@ Cargo itself has no safe cross-worktree cache today ([rust-lang/cargo#16804](htt
 ## Why a fresh worktree is never 0s
 
 Cargo identifies a workspace crate by its absolute source path. The same crate in a new worktree is, to cargo, a new crate with an empty incremental cache, so the ~80 workspace crates `dbt-sa-cli` depends on always recompile once per worktree. Registry dependencies are keyed by name and version — those are what a shared cache could have saved, and what the table above is about.
+
+## New in v0.2
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer v0.2 posuere erat a ante venenatis dapibus, posuere velit aliquet. Donec ullamcorper nulla non metus auctor fringilla.

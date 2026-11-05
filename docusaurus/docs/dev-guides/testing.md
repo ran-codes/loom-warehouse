@@ -94,3 +94,7 @@ Heaviest: `dbt-adapter` 1,489 · `dbt-schemas` 677 · `dbt-parser` 400.
 | 3 | 10 `dbt-deps` tests need symlinks (`os error 1314`) | Windows Developer Mode on — see `CONTRIBUTING.md` |
 
 `RUST_MIN_STACK=8388608` is exported by the justfile, same as CI: the parser/jinja tests abort without it.
+
+## New in v0.2
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer v0.2 posuere erat a ante venenatis dapibus, posuere velit aliquet. Donec ullamcorper nulla non metus auctor fringilla.
