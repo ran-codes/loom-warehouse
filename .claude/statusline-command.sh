@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Claude Code status line: model name + git branch + context bar + logged-in account
+# Claude Code status line: model name + git branch + context bar + logged-in account + prompt cache
 # No external dependencies (no jq required)
 
 input=$(cat)
@@ -101,5 +101,21 @@ if [ -n "$tokens" ]; then
   tokens_part=" ${tokens_fmt}"
 fi
 
+# Prompt cache: minutes until the cached prefix goes cold (prompt_cache.expires_at, epoch seconds),
+# or "cold" once it has. Absent before Claude Code v2.1.251 or the first reply: nothing prints.
+# Claude Code redraws the bar when expires_at passes, so the flip to cold shows without a request.
+cache_part=""
+warm=$(echo "$input" | grep -oE '"warm" *: *(true|false)' | head -1 | sed 's/.*: *//')
+observed=$(echo "$input" | grep -oE '"caching_observed" *: *(true|false)' | head -1 | sed 's/.*: *//')
+expires_at=$(echo "$input" | grep -o '"expires_at" *: *[0-9][0-9]*' | head -1 | sed 's/.*: *//')
+if [ "$warm" = "true" ] && [ -n "$expires_at" ] && [ "$expires_at" -gt "$(date +%s)" ]; then
+  left=$(( (expires_at - $(date +%s)) / 60 ))
+  if [ "$left" -le 5 ]; then cache_color="\033[31m"; else cache_color="\033[36m"; fi
+  cache_part=" ${cache_color}cache ${left}m${reset}"
+elif [ -n "$warm" ] && [ "$observed" != "false" ]; then
+  # warm:false, or a warm stamp whose expiry has already passed
+  cache_part=" \033[31mcache cold${reset}"
+fi
+
 # Assemble
-printf "%s%b%b ${color}context [%s] %d%%%s${reset}" "$model" "$account_part" "$branch_part" "$bar" "$used_int" "$tokens_part"
+printf "%s%b%b ${color}context [%s] %d%%%s${reset}%b" "$model" "$account_part" "$branch_part" "$bar" "$used_int" "$tokens_part" "$cache_part"
